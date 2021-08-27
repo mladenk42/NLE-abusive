@@ -6,17 +6,17 @@ outfile = sys.argv[2]
 s_year = sys.argv[3]
 e_year = sys.argv[4]
 
-df = pd.read_csv(infile)
+df = pd.read_csv(infile,  lineterminator='\n', parsedates=['createddate', 'lastchange'])
 print(df.shape)
 
 
 of = open(outfile, "w")
+ok, notok = 0, 0
 
 for year in range(s_year,e_year+1):
     df = df[df.created_date.str.startswith(year, na = False)]
-    print(df.shape)
+    print(year, df.shape)
 
-    ok, notok = 0, 0
 
     for t in df.content.tolist():
         try:
