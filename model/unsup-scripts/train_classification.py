@@ -24,7 +24,7 @@ def read_data(file_name):
     #Reading CSV File
     print('Processing', file_name)
     df = pd.read_csv(file_name, lineterminator='\n')
-
+    #df = df.head(100)
     texts= df.content.tolist()
     labels = df.label.tolist()
 
