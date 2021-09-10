@@ -13,7 +13,9 @@ logger = logging.getLogger(__name__)
 from datasets import load_metric
 
 def compute_metrics(eval_preds):
-    metric = load_metric("accuracy", "f1","recall","precision")
+    NUM_PROCESS = torch.distributed.get_world_size()
+    PROCESS_ID = torch.distributed.get_rank()
+    metric = load_metric("accuracy", "f1","recall","precision", num_process=NUM_PROCESS, process_id=PROCESS_ID)
     logits, labels = eval_preds
     predictions = np.argmax(logits, axis=-1)
     return metric.compute(predictions=predictions, references=labels)
@@ -88,6 +90,7 @@ if __name__ == '__main__':
         weight_decay=args.weight_decay,  # strength of weight decay
         logging_dir=args.logging_dir,  # directory for storing logs
         logging_steps=args.logging_steps,
+        evaluation_strategy = "epoch",
     )
     train_file = args.train_file
     val_file = args.val_file
