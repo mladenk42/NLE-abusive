@@ -1,10 +1,12 @@
 import torch
 import pandas as pd
 import argparse
+import logging
 
 from torch.utils.data import DataLoader
 from transformers import AutoConfig, AutoTokenizer, AutoModelForSequenceClassification, TrainingArguments,AdamW
 from transformers import Trainer
+logger = logging.getLogger(__name__)
 
 def read_data(file_name):
     #Reading CSV File
@@ -45,11 +47,11 @@ if __name__ == '__main__':
     parser.add_argument("-logging_steps", type=int, default=50, help='Logging Steps')
 
     #Dataset
-    parser.add_argument("-train_file", type=str, required=True, help='Training File')
-    parser.add_argument("-val_file", type=str, required=True, help='Validation File')
+    parser.add_argument("-train_file", type=str, default='../../data/unsup/24h/train_2018.csv', help='Training File')
+    parser.add_argument("-val_file", type=str, default='../../data/unsup/24h/val_2018.csv', help='Validation File')
 
     #Model
-    parser.add_argument("-model_dir", type=str, required=True, help='The model directory checkpoint for weights initialization.')
+    parser.add_argument("-model_dir", type=str, default='../output/finetuned-model/', help='The model directory checkpoint for weights initialization.')
 
     #TODO: Currently expects tokenizer to be present in the model directory only. Better Change this in future
 
@@ -89,6 +91,7 @@ if __name__ == '__main__':
     train_encodings = tokenizer(train_texts, truncation=True, padding=True)
     val_encodings = tokenizer(val_texts, truncation=True, padding=True)
 
+    #TODO: Maybe want to save the dataset, so that processing is less
     train_dataset = HRDataset(train_encodings, train_labels)
     val_dataset = HRDataset(val_encodings, val_labels)
 
@@ -103,6 +106,24 @@ if __name__ == '__main__':
         train_dataset=train_dataset,  # training dataset
         eval_dataset=val_dataset  # evaluation dataset
     )
+
+    train_result = trainer.train(resume_from_checkpoint=None)
+    trainer.save_model()  # Saves the tokenizer too for easy upload
+    metrics = train_result.metrics
+
+    metrics["train_samples"] = len(train_dataset)
+
+    trainer.log_metrics("train", metrics)
+    trainer.save_metrics("train", metrics)
+    trainer.save_state()
+
+    # Evaluation
+    if training_args.do_eval:
+        logger.info("*** Evaluate ***")
+        metrics = trainer.evaluate()
+        metrics["eval_samples"] = len(val_dataset)
+        trainer.log_metrics("eval", metrics)
+        trainer.save_metrics("eval", metrics)
 
     #Just in case Trainer not working
     #TODO: Need to fix saving models, logs etc
