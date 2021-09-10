@@ -13,9 +13,8 @@ logger = logging.getLogger(__name__)
 from datasets import load_metric
 
 def compute_metrics(eval_preds):
-    NUM_PROCESS = torch.distributed.get_world_size()
-    PROCESS_ID = torch.distributed.get_rank()
-    metric = load_metric("accuracy", "f1","recall","precision", num_process=NUM_PROCESS, process_id=PROCESS_ID)
+   
+    metric = load_metric("accuracy", "f1")
     logits, labels = eval_preds
     predictions = np.argmax(logits, axis=-1)
     return metric.compute(predictions=predictions, references=labels)
@@ -97,7 +96,7 @@ if __name__ == '__main__':
     model_dir= args.model_dir
 
     train_texts, train_labels = read_data(train_file)
-    val_texts, val_labels = read_data(train_file)
+    val_texts, val_labels = read_data(val_file)
 
     tokenizer = AutoTokenizer.from_pretrained(model_dir)
     data_collator = DataCollatorWithPadding(tokenizer=tokenizer)
