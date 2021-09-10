@@ -2,11 +2,21 @@ import torch
 import pandas as pd
 import argparse
 import logging
+import numpy as np
 
 from torch.utils.data import DataLoader
-from transformers import AutoConfig, AutoTokenizer, AutoModelForSequenceClassification, TrainingArguments,AdamW
+from transformers import AutoConfig, AutoTokenizer, AutoModelForSequenceClassification, TrainingArguments,DataCollatorWithPadding
 from transformers import Trainer
 logger = logging.getLogger(__name__)
+
+# import datasets
+from datasets import load_metric
+
+def compute_metrics(eval_preds):
+    metric = load_metric("accuracy", "f1","recall","precision")
+    logits, labels = eval_preds
+    predictions = np.argmax(logits, axis=-1)
+    return metric.compute(predictions=predictions, references=labels)
 
 def read_data(file_name):
     #Reading CSV File
@@ -87,6 +97,7 @@ if __name__ == '__main__':
     val_texts, val_labels = read_data(train_file)
 
     tokenizer = AutoTokenizer.from_pretrained(model_dir)
+    data_collator = DataCollatorWithPadding(tokenizer=tokenizer)
 
     train_encodings = tokenizer(train_texts, truncation=True, padding=True)
     val_encodings = tokenizer(val_texts, truncation=True, padding=True)
@@ -104,7 +115,10 @@ if __name__ == '__main__':
         model=model,  # the instantiated Transformers model to be trained
         args=training_args,  # training arguments, defined above
         train_dataset=train_dataset,  # training dataset
-        eval_dataset=val_dataset  # evaluation dataset
+        eval_dataset=val_dataset,  # evaluation dataset
+        tokenizer = tokenizer,
+        compute_metrics=compute_metrics,
+        data_collator=data_collator,
     )
 
     train_result = trainer.train(resume_from_checkpoint=None)
