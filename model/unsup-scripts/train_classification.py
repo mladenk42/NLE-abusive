@@ -132,12 +132,12 @@ if __name__ == '__main__':
     trainer.save_state()
 
     # Evaluation
-    if training_args.do_eval:
-        logger.info("*** Evaluate ***")
-        metrics = trainer.evaluate()
-        metrics["eval_samples"] = len(val_dataset)
-        trainer.log_metrics("eval", metrics)
-        trainer.save_metrics("eval", metrics)
+
+    logger.info("*** Evaluate ***")
+    metrics = trainer.evaluate()
+    metrics["eval_samples"] = len(val_dataset)
+    trainer.log_metrics("eval", metrics)
+    trainer.save_metrics("eval", metrics)
 
     #Just in case Trainer not working
     #TODO: Need to fix saving models, logs etc
