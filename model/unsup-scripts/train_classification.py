@@ -16,10 +16,16 @@ from datasets import load_from_disk
 
 def compute_metrics(eval_preds):
 
-    metric = load_metric("accuracy", "f1")
+    metric_acc = load_metric("accuracy")
+    metric_f1 = load_metric("f1")
+
     logits, labels = eval_preds
     predictions = np.argmax(logits, axis=-1)
-    return metric.compute(predictions=predictions, references=labels)
+
+    acc = metric_acc.compute(predictions=predictions, references=labels)
+    f1 = metric_f1.compute(predictions=predictions, references=labels)
+
+    return {"acc": acc, "f1": f1}
 
 def read_data(file_name):
     #Reading CSV File
