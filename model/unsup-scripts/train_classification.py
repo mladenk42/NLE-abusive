@@ -23,9 +23,10 @@ def compute_metrics(eval_preds):
 
 def read_data(file_name):
     #Reading CSV File
-    print('Processing', file_name)
+
     df = pd.read_csv(file_name, lineterminator='\n')
     #df = df.head(100)
+    print('Processing', file_name, df.shape)
     texts= df.content.tolist()
     labels = df.label.tolist()
 
@@ -104,27 +105,31 @@ if __name__ == '__main__':
     data_collator = DataCollatorWithPadding(tokenizer=tokenizer)
 
 
-    files = [train_file,val_file]
-    splits = ['train','val']
-
-    for s_file, split in zip(files,splits):
-        data_dir =os.path.dirname(s_file)
-        cache_file = data_dir + train_file[:-4]+'.cache'
-        if not encode_data:
-            reloaded_encoded_dataset = load_from_disk(cache_file)
-        else:
-            texts, labels = read_data(s_file)
-            encodings = tokenizer(texts, truncation=True, padding=True)
-            dataset = HRDataset(train_encodings, train_labels)
-
-        val_encodings = tokenizer(val_texts, truncation=True, padding=True)
+    # files = [train_file,val_file]
+    # splits = ['train','val']
+    #
+    # for s_file, split in zip(files,splits):
+    #     data_dir =os.path.dirname(s_file)
+    #     cache_file = data_dir + train_file[:-4]+'.cache'
+    #     if not encode_data:
+    #         reloaded_encoded_dataset = load_from_disk(cache_file)
+    #     else:
+    #         texts, labels = read_data(s_file)
+    #         encodings = tokenizer(texts, truncation=True, padding=True)
+    #         dataset = HRDataset(train_encodings, train_labels)
+    #
+    #     val_encodings = tokenizer(val_texts, truncation=True, padding=True)
 
     #TODO: Maybe want to save the dataset, so that processing is less
+    train_texts, train_labels = read_data(train_file)
+    train_encodings = tokenizer(train_texts, truncation=True, padding=True)
     train_dataset = HRDataset(train_encodings, train_labels)
+    val_texts, val_labels = read_data(val_file)
+    val_encodings = tokenizer(val_texts, truncation=True, padding=True)
     val_dataset = HRDataset(val_encodings, val_labels)
 
-    encoded_dataset.save_to_disk("path/of/my/dataset/directory")
-    reloaded_encoded_dataset = load_from_disk("path/of/my/dataset/directory")
+    # encoded_dataset.save_to_disk("path/of/my/dataset/directory")
+    # reloaded_encoded_dataset = load_from_disk("path/of/my/dataset/directory")
 
     config = AutoConfig.from_pretrained(model_dir, num_labels=2)
     model = AutoModelForSequenceClassification.from_config(config)
