@@ -3,6 +3,7 @@ import pandas as pd
 import argparse
 import logging
 import numpy as np
+import os
 
 from torch.utils.data import DataLoader
 from transformers import AutoConfig, AutoTokenizer, AutoModelForSequenceClassification, TrainingArguments,DataCollatorWithPadding
@@ -11,9 +12,10 @@ logger = logging.getLogger(__name__)
 
 # import datasets
 from datasets import load_metric
+from datasets import load_from_disk
 
 def compute_metrics(eval_preds):
-   
+
     metric = load_metric("accuracy", "f1")
     logits, labels = eval_preds
     predictions = np.argmax(logits, axis=-1)
@@ -51,15 +53,16 @@ if __name__ == '__main__':
     parser.add_argument("-output_dir", type=str, default="./results/claasify/", help='Output Directory')
     parser.add_argument("-logging_dir", type=str, default="./logs/claasify/", help='Logging Directory')
     parser.add_argument("-num_train_epochs", type=int, default=5, help='Number of training Epochs')
-    parser.add_argument("-per_device_train_batch_size", type=int, default=16, help='Traiing Batch Size')
+    parser.add_argument("-per_device_train_batch_size", type=int, default=24, help='Traiing Batch Size')
     parser.add_argument("-per_device_eval_batch_size", type=int, default=64, help='Evaluation Batch Size')
     parser.add_argument("-warmup_steps", type=int, default=500, help='Warmup Steps')
     parser.add_argument("-weight_decay", type=int, default=0.01, help='Weight Decay Rate')
-    parser.add_argument("-logging_steps", type=int, default=50, help='Logging Steps')
+    parser.add_argument("-logging_steps", type=int, default=5000, help='Logging Steps')
 
     #Dataset
-    parser.add_argument("-train_file", type=str, default='../../data/unsup/24h/train_2018.csv', help='Training File')
-    parser.add_argument("-val_file", type=str, default='../../data/unsup/24h/val_2018.csv', help='Validation File')
+    parser.add_argument("-train_file", type=str, default='../../data/unsup/24h/classify/train_2019_eq.csv', help='Training File')
+    parser.add_argument("-val_file", type=str, default='../../data/unsup/24h/classify/val_2019_eq.csv', help='Validation File')
+    parser.add_argument("-encode_data", type=bool, default=False, help='Encode data')
 
     #Model
     parser.add_argument("-model_dir", type=str, default='../output/finetuned-model/', help='The model directory checkpoint for weights initialization.')
@@ -93,21 +96,35 @@ if __name__ == '__main__':
     )
     train_file = args.train_file
     val_file = args.val_file
+    encode_data = args.encode_data
     model_dir= args.model_dir
 
-    train_texts, train_labels = read_data(train_file)
-    val_texts, val_labels = read_data(val_file)
 
     tokenizer = AutoTokenizer.from_pretrained(model_dir)
     data_collator = DataCollatorWithPadding(tokenizer=tokenizer)
 
-    train_encodings = tokenizer(train_texts, truncation=True, padding=True)
-    val_encodings = tokenizer(val_texts, truncation=True, padding=True)
+
+    files = [train_file,val_file]
+    splits = ['train','val']
+
+    for s_file, split in zip(files,splits):
+        data_dir =os.path.dirname(s_file)
+        cache_file = data_dir + train_file[:-4]+'.cache'
+        if not encode_data:
+            reloaded_encoded_dataset = load_from_disk(cache_file)
+        else:
+            texts, labels = read_data(s_file)
+            encodings = tokenizer(texts, truncation=True, padding=True)
+            dataset = HRDataset(train_encodings, train_labels)
+
+        val_encodings = tokenizer(val_texts, truncation=True, padding=True)
 
     #TODO: Maybe want to save the dataset, so that processing is less
     train_dataset = HRDataset(train_encodings, train_labels)
     val_dataset = HRDataset(val_encodings, val_labels)
 
+    encoded_dataset.save_to_disk("path/of/my/dataset/directory")
+    reloaded_encoded_dataset = load_from_disk("path/of/my/dataset/directory")
 
     config = AutoConfig.from_pretrained(model_dir, num_labels=2)
     model = AutoModelForSequenceClassification.from_config(config)
