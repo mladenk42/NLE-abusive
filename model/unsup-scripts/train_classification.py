@@ -27,6 +27,15 @@ def compute_metrics(eval_preds):
 
     return {"acc": acc, "f1": f1}
 
+def fix_metrics(metrics):
+    # Fix metrics in dict format for logging purpose
+    for key in metrics.keys():
+        if isinstance(metrics[key], dict):
+            for key1 in metrics[key].keys():
+                print(metrics[key][key1])
+                metrics[key] = metrics[key][key1]
+    return metrics
+
 def read_data(file_name):
     #Reading CSV File
 
@@ -165,6 +174,7 @@ if __name__ == '__main__':
 
     logger.info("*** Evaluate ***")
     metrics = trainer.evaluate()
+    metrics = fix_metrics(metrics)
     metrics["eval_samples"] = len(val_dataset)
     trainer.log_metrics("eval", metrics)
     trainer.save_metrics("eval", metrics)
