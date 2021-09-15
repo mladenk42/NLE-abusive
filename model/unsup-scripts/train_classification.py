@@ -146,8 +146,7 @@ if __name__ == '__main__':
     # encoded_dataset.save_to_disk("path/of/my/dataset/directory")
     # reloaded_encoded_dataset = load_from_disk("path/of/my/dataset/directory")
 
-    config = AutoConfig.from_pretrained(model_dir, num_labels=2)
-    model = AutoModelForSequenceClassification.from_config(config)
+    model = AutoModelForSequenceClassification.from_pretrained(model_dir, num_labels=2)
 
     #TODO: Trainer not working on Server due to some issue
     trainer = Trainer(
