@@ -94,8 +94,9 @@ if __name__ == '__main__':
     if test_all_steps:
         list_dir = os.listdir(model_dir)
         for item in list_dir:
-            if os.path.isdir(item):
-                model_dirs.append(item)
+            if 'checkpoint' in item:
+                tmp_dir = os.path.join(model_dir,item+'/')
+                model_dirs.append(tmp_dir)
     model_dirs.append(model_dir)
     print(model_dirs)
 
