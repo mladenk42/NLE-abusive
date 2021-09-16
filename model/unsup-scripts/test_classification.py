@@ -92,11 +92,12 @@ if __name__ == '__main__':
 
     model_dirs = []
     if test_all_steps:
-        for item in model_dir:
+        list_dir = os.listdir(model_dir)
+        for item in list_dir:
             if os.path.isdir(item):
                 model_dirs.append(item)
     model_dirs.append(model_dir)
-
+    print(model_dirs)
 
     #Only done once because it assumes main directory will have same pre-processing part
     tokenizer = AutoTokenizer.from_pretrained(model_dir)
@@ -128,10 +129,10 @@ if __name__ == '__main__':
         if tmp_model_dir == model_dir:
             step = 'last'
         else:
-            step = os.path.basename(model_dir[:-1])
+            step = os.path.basename(tmp_model_dir[:-1])
         result = []
         result.append(step)
-
+        print(step,tmp_model_dir)
         for key in metrics.keys():
             val = metrics[key]
             result.append(val)
