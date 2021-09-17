@@ -357,18 +357,20 @@ def main():
         logger.info("Training new model from scratch")
         model = AutoModelForMaskedLM.from_config(config)
 
-
+    print('Vocab Len:', len(tokenizer))
     #Vocab Extension
-    target_vocab_size = len(tokenizer) + 1000 # 1k New Vocab
-    augmentor = VocabAugmentor(
-        tokenizer=tokenizer,
-        cased=False,
-        target_vocab_size=target_vocab_size
-    )
-    # Obtain new domain-specific terminology based on the fine-tuning corpus
-    new_tokens = augmentor.get_new_tokens(raw_datasets["train"])
+    if 'mbert' in model_args.model_name_or_path:
+        new_token_file = 'mbert.txt'
+    else:
+        new_token_file = 'cse.txt'
+    new_tokens = []
+    with open(new_token_file) as fid:
+        lines = fid.readline()
+        for line in lines:
+            new_tokens.append(line.strip())
+
     tokenizer.add_tokens(new_tokens)
-    print('New Token Len:',len(tokenizer))
+    print('New Vocab Len:',len(tokenizer))
     model.resize_token_embeddings(len(tokenizer))
 
     # Preprocessing the datasets.
