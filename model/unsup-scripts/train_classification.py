@@ -23,7 +23,7 @@ def compute_metrics(eval_preds):
     predictions = np.argmax(logits, axis=-1)
 
     acc = metric_acc.compute(predictions=predictions, references=labels)
-    f1 = metric_f1.compute(predictions=predictions, references=labels)
+    f1 = metric_f1.compute(predictions=predictions, references=labels, average="macro")
 
     return {"acc": acc, "f1": f1}
 
