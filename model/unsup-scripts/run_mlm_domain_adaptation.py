@@ -48,9 +48,9 @@ from transformers.trainer_utils import get_last_checkpoint
 from transformers.utils import check_min_version
 from transformers.utils.versions import require_version
 
-from pathlib import Path
-from transformers_domain_adaptation import DataSelector
-from transformers_domain_adaptation import VocabAugmentor
+# from pathlib import Path
+# from transformers_domain_adaptation import DataSelector
+# from transformers_domain_adaptation import VocabAugmentor
 
 # Will error if the minimal version of Transformers is not installed. Remove at your own risks.
 check_min_version("4.10.0.dev0")
