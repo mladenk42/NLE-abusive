@@ -359,7 +359,7 @@ def main():
 
     print('Vocab Len:', len(tokenizer))
     #Vocab Extension
-    if 'mbert' in model_args.model_name_or_path:
+    if 'bert-base-multilingual-uncased' in model_args.model_name_or_path or 'mbert' in model_args.model_name_or_path:
         new_token_file = 'mbert.txt'
     else:
         new_token_file = 'cse.txt'
