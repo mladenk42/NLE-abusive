@@ -365,7 +365,7 @@ def main():
         new_token_file = 'cse.txt'
     new_tokens = []
     with open(new_token_file) as fid:
-        lines = fid.readline()
+        lines = fid.readlines()
         for line in lines:
             new_tokens.append(line.strip())
 
