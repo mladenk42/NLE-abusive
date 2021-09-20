@@ -15,9 +15,14 @@ from pathlib import Path
 
 dpt_corpus_train = '../data/unsup/24h/24sata_LM.txt'
 
-model_cards = ['EMBEDDIA/crosloengual-bert', 'bert-base-multilingual-uncased']
+# model_cards = ['EMBEDDIA/crosloengual-bert', 'bert-base-multilingual-cased']
+# new_tokens_files = ['cse.txt', 'mbert.txt']
 
-for model_card in model_cards:
+
+model_cards = ['bert-base-multilingual-cased']
+new_tokens_files = [ 'mbert.txt']
+
+for model_card, new_tokens_file in zip(model_cards,new_tokens_files):
 
     # dpt_corpus_train_data_selected = dpt_corpus_train[:-2]+'_'+model_card+'_selected.txt'
 
@@ -52,7 +57,7 @@ for model_card in model_cards:
     # Obtain new domain-specific terminology based on the fine-tuning corpus
     new_tokens = augmentor.get_new_tokens(training_texts)
 
-    new_tokens_file = model_card +'.txt'
+    # new_tokens_file = model_card +'.txt'
     with open(new_tokens_file, 'w') as f:
         for item in new_tokens:
             f.write("%s\n" % item)
