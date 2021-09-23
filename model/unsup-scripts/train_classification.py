@@ -105,7 +105,7 @@ if __name__ == '__main__':
 
     #Model
     parser.add_argument("-model_card", type=str, default='mbert', help='The model directory checkpoint for weights initialization.')
-    parser.add_argument("-all_steps", type=bool, default=True,
+    parser.add_argument("-all_steps", action='store_true',
                         help='To Train on all steps check point')
 
     #TODO: Currently expects tokenizer to be present in the model directory only. Better Change this in future
