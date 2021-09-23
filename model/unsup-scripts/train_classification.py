@@ -140,7 +140,7 @@ if __name__ == '__main__':
                 logging_steps = 50000 #TODO: maybe change letter. For now, a large Logging step
                 tmp_dir = os.path.join(model_dir, item + '/')
                 model_dirs.append(tmp_dir)
-    model_dirs.append(model_card)
+    model_dirs.append(model_dir)
     print(model_dirs)
 
     tokenizer = AutoTokenizer.from_pretrained(model_dir)
