@@ -14,6 +14,31 @@ logger = logging.getLogger(__name__)
 from datasets import load_metric
 from datasets import load_from_disk
 
+model_cards = {
+"mbert":'bert-base-multilingual-cased',
+"csebert":'EMBEDDIA/crosloengual-bert',
+"mbert_finetune":'../output/mbert_finetune/',
+"csebert_finetune":'../output/cse_finetune/',
+"mbert_finetune_vocab":'../output/mbert_finetune_vocab/',
+"csebert_finetune_vocab":'../output/cse_finetune_vocab/',
+"mbert_vocab":'../output/mbert_vocab/', #TODO: Save the model
+"csebert_vocab":'../output/cse_finetune_vocab/',
+}
+
+datasets = {
+    'large':{
+        'train_file':'../../data/unsup/24h/classify/train_2019_eq.csv',
+        'val_file':'../../data/unsup/24h/classify/val_2019_eq.csv',
+        'test_file':'../../data/unsup/24h/classify/test_2019_eq.csv',
+    },
+'small':{
+        'train_file':'../../data/unsup/24h/classify/cro_train.csv',
+        'val_file':'../../data/unsup/24h/classify/cro_val.csv',
+        'test_file':'../../data/unsup/24h/classify/cro_test.csv',
+    },
+
+}
+
 def compute_metrics(eval_preds):
 
     metric_acc = load_metric("accuracy")
@@ -76,12 +101,12 @@ if __name__ == '__main__':
     parser.add_argument("-logging_steps", type=int, default=5000, help='Logging Steps')
 
     #Dataset
-    parser.add_argument("-train_file", type=str, default='../../data/unsup/24h/classify/train_2019_eq.csv', help='Training File')
-    parser.add_argument("-val_file", type=str, default='../../data/unsup/24h/classify/val_2019_eq.csv', help='Validation File')
-    parser.add_argument("-encode_data", type=bool, default=False, help='Encode data')
+    parser.add_argument("-dataset", type=str, default='small', help='Training validation set large/small')
 
     #Model
-    parser.add_argument("-model_dir", type=str, default='../output/finetuned-model/', help='The model directory checkpoint for weights initialization.')
+    parser.add_argument("-model_card", type=str, default='mbert', help='The model directory checkpoint for weights initialization.')
+    parser.add_argument("-all_steps", type=bool, default=True,
+                        help='To Train on all steps check point')
 
     #TODO: Currently expects tokenizer to be present in the model directory only. Better Change this in future
 
@@ -99,41 +124,27 @@ if __name__ == '__main__':
     weight_decay = args.weight_decay
     logging_steps = args.logging_steps
 
-    training_args = TrainingArguments(
-        output_dir=args.output_dir,  # output directory
-        num_train_epochs=args.num_train_epochs,  # total number of training epochs
-        per_device_train_batch_size=args.per_device_train_batch_size,  # batch size per device during training
-        per_device_eval_batch_size=args.per_device_eval_batch_size,  # batch size for evaluation
-        warmup_steps=args.warmup_steps,  # number of warmup steps for learning rate scheduler
-        weight_decay=args.weight_decay,  # strength of weight decay
-        logging_dir=args.logging_dir,  # directory for storing logs
-        logging_steps=args.logging_steps,
-        evaluation_strategy = "epoch",
-    )
-    train_file = args.train_file
-    val_file = args.val_file
-    encode_data = args.encode_data
-    model_dir= args.model_dir
+    dataset = args.dataset
+    train_file = datasets[dataset]['train_file']
+    val_file = datasets[dataset]['val_file']
+    # encode_data = args.encode_data
+    model_card= args.model_card
+    all_steps = args.all_steps
 
+    model_dir = model_cards[model_card]
+    model_dirs = []
+    if all_steps:
+        list_dir = os.listdir(model_dir)
+        for item in list_dir:
+            if 'checkpoint' in item:
+                logging_steps = 50000 #TODO: maybe change letter. For now, a large Logging step
+                tmp_dir = os.path.join(model_dir, item + '/')
+                model_dirs.append(tmp_dir)
+    model_dirs.append(model_card)
+    print(model_dirs)
 
     tokenizer = AutoTokenizer.from_pretrained(model_dir)
     data_collator = DataCollatorWithPadding(tokenizer=tokenizer)
-
-
-    # files = [train_file,val_file]
-    # splits = ['train','val']
-    #
-    # for s_file, split in zip(files,splits):
-    #     data_dir =os.path.dirname(s_file)
-    #     cache_file = data_dir + train_file[:-4]+'.cache'
-    #     if not encode_data:
-    #         reloaded_encoded_dataset = load_from_disk(cache_file)
-    #     else:
-    #         texts, labels = read_data(s_file)
-    #         encodings = tokenizer(texts, truncation=True, padding=True)
-    #         dataset = HRDataset(train_encodings, train_labels)
-    #
-    #     val_encodings = tokenizer(val_texts, truncation=True, padding=True)
 
     #TODO: Maybe want to save the dataset, so that processing is less
     train_texts, train_labels = read_data(train_file)
@@ -146,57 +157,57 @@ if __name__ == '__main__':
     # encoded_dataset.save_to_disk("path/of/my/dataset/directory")
     # reloaded_encoded_dataset = load_from_disk("path/of/my/dataset/directory")
 
-    model = AutoModelForSequenceClassification.from_pretrained(model_dir, num_labels=2)
+    for model_dir in model_dirs:
+        if 'checkpoint' in model_dir:
+            checkpoint = model_dir.split('/')[-2] +'/'
+        else:
+            checkpoint = 'last/'
 
-    #TODO: Trainer not working on Server due to some issue
-    trainer = Trainer(
-        model=model,  # the instantiated Transformers model to be trained
-        args=training_args,  # training arguments, defined above
-        train_dataset=train_dataset,  # training dataset
-        eval_dataset=val_dataset,  # evaluation dataset
-        tokenizer = tokenizer,
-        compute_metrics=compute_metrics,
-        data_collator=data_collator,
-    )
+        tmp_output_dir = output_dir + model_card +'/'+checkpoint
+        tmp_logging_dir = logging_dir + model_card +'/'+ checkpoint
 
-    train_result = trainer.train(resume_from_checkpoint=None)
-    trainer.save_model()  # Saves the tokenizer too for easy upload
-    metrics = train_result.metrics
+        training_args = TrainingArguments(
+            output_dir=tmp_output_dir,  # output directory
+            logging_dir=tmp_logging_dir,  # directory for storing logs
+            num_train_epochs=num_train_epochs,  # total number of training epochs
+            per_device_train_batch_size=per_device_train_batch_size,  # batch size per device during training
+            per_device_eval_batch_size=per_device_eval_batch_size,  # batch size for evaluation
+            warmup_steps=warmup_steps,  # number of warmup steps for learning rate scheduler
+            weight_decay=weight_decay,  # strength of weight decay
+            logging_steps=logging_steps,
+            evaluation_strategy="epoch",
+        )
 
-    metrics["train_samples"] = len(train_dataset)
+        model = AutoModelForSequenceClassification.from_pretrained(model_dir, num_labels=2)
 
-    trainer.log_metrics("train", metrics)
-    trainer.save_metrics("train", metrics)
-    trainer.save_state()
+        #TODO: Trainer not working on Server due to some issue
+        trainer = Trainer(
+            model=model,  # the instantiated Transformers model to be trained
+            args=training_args,  # training arguments, defined above
+            train_dataset=train_dataset,  # training dataset
+            eval_dataset=val_dataset,  # evaluation dataset
+            tokenizer = tokenizer,
+            compute_metrics=compute_metrics,
+            data_collator=data_collator,
+        )
 
-    # Evaluation
+        train_result = trainer.train(resume_from_checkpoint=None)
+        trainer.save_model()  # Saves the tokenizer too for easy upload
+        metrics = train_result.metrics
 
-    logger.info("*** Evaluate ***")
-    metrics = trainer.evaluate()
-    metrics = fix_metrics(metrics)
-    metrics["eval_samples"] = len(val_dataset)
-    trainer.log_metrics("eval", metrics)
-    trainer.save_metrics("eval", metrics)
+        metrics["train_samples"] = len(train_dataset)
 
-    #Just in case Trainer not working
-    #TODO: Need to fix saving models, logs etc
+        trainer.log_metrics("train", metrics)
+        trainer.save_metrics("train", metrics)
+        trainer.save_state()
 
-    # device = torch.device('cuda') if torch.cuda.is_available() else torch.device('cpu')
-    # model.to(device)
-    # model.train()
-    #
-    # train_loader = DataLoader(train_dataset, batch_size=16, shuffle=True)
-    #
-    # optim = AdamW(model.parameters(), lr=5e-5,warmup_steps=warmup_steps,)
-    #
-    # for epoch in range(3):
-    #     for batch in train_loader:
-    #         optim.zero_grad()
-    #         input_ids = batch['input_ids'].to(device)
-    #         attention_mask = batch['attention_mask'].to(device)
-    #         labels = batch['labels'].to(device)
-    #         outputs = model(input_ids, attention_mask=attention_mask, labels=labels)
-    #         loss = outputs[0]
-    #         loss.backward()
-    #         optim.step()
+        # Evaluation
+
+        logger.info("*** Evaluate ***")
+        metrics = trainer.evaluate()
+        metrics = fix_metrics(metrics)
+        metrics["eval_samples"] = len(val_dataset)
+        trainer.log_metrics("eval", metrics)
+        trainer.save_metrics("eval", metrics)
+
 
