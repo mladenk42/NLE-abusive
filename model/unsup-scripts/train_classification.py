@@ -163,9 +163,13 @@ if __name__ == '__main__':
         else:
             checkpoint = 'last/'
 
-        tmp_output_dir = output_dir + model_card +'/'+checkpoint
-        tmp_logging_dir = logging_dir + model_card +'/'+ checkpoint
-
+        if all_steps:
+            tmp_output_dir = output_dir + model_card + '/all_steps/' + checkpoint
+            tmp_logging_dir = logging_dir + model_card + '/all_steps/' + checkpoint
+        else:
+            tmp_output_dir = output_dir + model_card +'/'+checkpoint
+            tmp_logging_dir = logging_dir + model_card +'/'+ checkpoint
+        print(tmp_output_dir, tmp_logging_dir)
         training_args = TrainingArguments(
             output_dir=tmp_output_dir,  # output directory
             logging_dir=tmp_logging_dir,  # directory for storing logs
