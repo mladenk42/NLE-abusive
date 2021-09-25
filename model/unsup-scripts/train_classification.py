@@ -98,7 +98,11 @@ if __name__ == '__main__':
     parser.add_argument("-per_device_eval_batch_size", type=int, default=64, help='Evaluation Batch Size')
     parser.add_argument("-warmup_steps", type=int, default=500, help='Warmup Steps')
     parser.add_argument("-weight_decay", type=int, default=0.01, help='Weight Decay Rate')
-    parser.add_argument("-logging_steps", type=int, default=5000, help='Logging Steps')
+    parser.add_argument("-logging_steps", type=int, default=500, help='Logging Steps')
+    parser.add_argument("-save_steps", type=int, default=500, help='Number of updates steps before two checkpoint saves')
+    parser.add_argument("-save_total_limit", type=int, default=500, help='If a value is passed, will limit the total amount of checkpoints. Deletes the older checkpoints')
+    parser.add_argument("-save_strategy", type=str, default="steps", help='The checkpoint save strategy to adopt during training')
+
 
     #Dataset
     parser.add_argument("-dataset", type=str, default='small', help='Training validation set large/small')
@@ -123,6 +127,9 @@ if __name__ == '__main__':
     warmup_steps = args.warmup_steps
     weight_decay = args.weight_decay
     logging_steps = args.logging_steps
+    save_steps = args.save_steps
+    save_total_limit = args.save_total_limit
+    save_strategy = args.save_strategy
 
     dataset = args.dataset
     train_file = datasets[dataset]['train_file']
@@ -160,15 +167,17 @@ if __name__ == '__main__':
     for model_dir in model_dirs:
         if 'checkpoint' in model_dir:
             checkpoint = model_dir.split('/')[-2] +'/'
+            save_strategy = "epoch"
+            save_total_limit = save_total_limit #TODO: Change this to a acceptatble number
         else:
             checkpoint = 'last/'
 
         if all_steps:
-            tmp_output_dir = output_dir + model_card + '/all_steps/' + checkpoint
-            tmp_logging_dir = logging_dir + model_card + '/all_steps/' + checkpoint
+            tmp_output_dir = output_dir + model_card +'_'+dataset+ '/all_steps/' + checkpoint
+            tmp_logging_dir = logging_dir + model_card +'_'+dataset+ '/all_steps/' + checkpoint
         else:
-            tmp_output_dir = output_dir + model_card +'/'+checkpoint
-            tmp_logging_dir = logging_dir + model_card +'/'+ checkpoint
+            tmp_output_dir = output_dir + model_card+'_'+dataset +'/'+checkpoint
+            tmp_logging_dir = logging_dir + model_card+'_'+dataset +'/'+ checkpoint
         print(tmp_output_dir, tmp_logging_dir)
         training_args = TrainingArguments(
             output_dir=tmp_output_dir,  # output directory
@@ -180,6 +189,9 @@ if __name__ == '__main__':
             weight_decay=weight_decay,  # strength of weight decay
             logging_steps=logging_steps,
             evaluation_strategy="epoch",
+            save_total_limit = save_total_limit,
+            save_strategy=save_strategy,
+            save_steps=save_steps,
         )
 
         model = AutoModelForSequenceClassification.from_pretrained(model_dir, num_labels=2)
