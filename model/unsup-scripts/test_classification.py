@@ -97,7 +97,9 @@ if __name__ == '__main__':
             if 'checkpoint' in item:
                 tmp_dir = os.path.join(model_dir,item+'/')
                 model_dirs.append(tmp_dir)
-    model_dirs.append(model_dir)
+    #Only add last step when not testing on all_steps of LM model
+    if 'all_steps' not in model_dir:
+        model_dirs.append(model_dir)
     print(model_dirs)
 
     #Only done once because it assumes main directory will have same pre-processing part
