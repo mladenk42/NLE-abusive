@@ -114,7 +114,11 @@ if __name__ == '__main__':
 
     all_results = []
     for tmp_model_dir in model_dirs:
-        model = AutoModelForSequenceClassification.from_pretrained(tmp_model_dir)
+        try:
+            model = AutoModelForSequenceClassification.from_pretrained(tmp_model_dir)
+        except:
+            print('Model loading issue ',tmp_model_dir)
+            continue
         trainer = Trainer(
             model=model,  # the instantiated Transformers model to be trained
             args=None,  # training arguments, defined above
