@@ -22,9 +22,9 @@ model_cards = {
 "csebert_finetune":'../output/cse_finetune/',
 
 "mbert_finetune_small":'../output/mbert_finetune_small/',
-"csebert_finetune_small":'../output/cse_finetune_small/',
+"csebert_finetune_small":'../output/csebert_finetune_small/',
 "mbert_finetune_small_gen":'../output/mbert_finetune_small_gen/',
-"csebert_finetune_small_gen":'../output/cse_finetune_small_gen/',
+"csebert_finetune_small_gen":'../output/csebert_finetune_small_gen/',
 
 "mbert_finetune_vocab":'../output/mbert_finetune_vocab/',
 "csebert_finetune_vocab":'../output/cse_finetune_vocab/',
