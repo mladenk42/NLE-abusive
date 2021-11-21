@@ -17,12 +17,21 @@ from datasets import load_from_disk
 model_cards = {
 "mbert":'bert-base-multilingual-cased',
 "csebert":'EMBEDDIA/crosloengual-bert',
+
 "mbert_finetune":'../output/mbert_finetune/',
 "csebert_finetune":'../output/cse_finetune/',
+
+"mbert_finetune_small":'../output/mbert_finetune_small/',
+"csebert_finetune_small":'../output/cse_finetune_small/',
+"mbert_finetune_small_gen":'../output/mbert_finetune_small_gen/',
+"csebert_finetune_small_gen":'../output/cse_finetune_small_gen/',
+
 "mbert_finetune_vocab":'../output/mbert_finetune_vocab/',
 "csebert_finetune_vocab":'../output/cse_finetune_vocab/',
+
 "mbert_vocab":'../output/mbert_vocab/', #TODO: Save the model
 "csebert_vocab":'../output/cse_finetune_vocab/',
+
 }
 
 datasets = {
@@ -168,7 +177,7 @@ if __name__ == '__main__':
         if 'checkpoint' in model_dir:
             checkpoint = model_dir.split('/')[-2] +'/'
             save_strategy = "epoch"
-            save_total_limit = save_total_limit #TODO: Change this to a acceptatble number
+            save_total_limit = 1 #TODO: Change this to a acceptatble number
         else:
             checkpoint = 'last/'
 
