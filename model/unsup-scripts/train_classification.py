@@ -100,8 +100,8 @@ if __name__ == '__main__':
 
     parser = argparse.ArgumentParser()
     # Training Parameters
-    parser.add_argument("-output_dir", type=str, default="./results/claasify/", help='Output Directory')
-    parser.add_argument("-logging_dir", type=str, default="./logs/claasify/", help='Logging Directory')
+    parser.add_argument("-output_dir", type=str, default="../results/claasify/", help='Output Directory')
+    parser.add_argument("-logging_dir", type=str, default="../logs/claasify/", help='Logging Directory')
     parser.add_argument("-num_train_epochs", type=int, default=5, help='Number of training Epochs')
     parser.add_argument("-per_device_train_batch_size", type=int, default=24, help='Traiing Batch Size')
     parser.add_argument("-per_device_eval_batch_size", type=int, default=64, help='Evaluation Batch Size')
