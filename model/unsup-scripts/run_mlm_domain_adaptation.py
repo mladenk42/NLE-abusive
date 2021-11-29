@@ -363,7 +363,7 @@ def main():
     print('Vocab Len:', len(tokenizer))
     #Vocab Extension
 
-    new_tokens = extend_vocab(data_args.train_file,len(tokenizer),vocab_ext_by=500,use_existing=True)
+    new_tokens = extend_vocab(tokenizer,data_args.train_file,len(tokenizer),vocab_ext_by=500,use_existing=True)
     # if 'bert-base-multilingual-uncased' in model_args.model_name_or_path or 'mbert' in model_args.model_name_or_path:
     #     new_token_file = 'mbert.txt'
     # else:
