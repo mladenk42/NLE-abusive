@@ -3,9 +3,10 @@ import os
 
 from tokenizers import BertWordPieceTokenizer
 
-def extend_vocab(file_name,vocab_size,vocab_ext_by=500,use_existing=True):
-    paths = [file_name]
-    dir_name = os.path.dirname(file_name)
+def extend_vocab(input_file_name,vocab_size,vocab_ext_by=500,use_existing=True):
+    paths = [input_file_name]
+    dir_name = os.path.dirname(input_file_name)
+    file_name = os.path.basename(input_file_name)
     new_vocab_size = vocab_size + vocab_ext_by
 
     #TODO: Is it better to include the BERT name instead of size
