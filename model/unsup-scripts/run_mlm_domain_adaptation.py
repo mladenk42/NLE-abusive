@@ -377,7 +377,7 @@ def main():
     tokenizer.add_tokens(new_tokens)
     print('New Vocab Len:',len(tokenizer))
     model.resize_token_embeddings(len(tokenizer))
-    exit(0)
+    # exit(0)
     # Preprocessing the datasets.
     # First we tokenize all the texts.
     if training_args.do_train:
