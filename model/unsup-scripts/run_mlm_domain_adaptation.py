@@ -48,6 +48,9 @@ from transformers.trainer_utils import get_last_checkpoint
 from transformers.utils import check_min_version
 from transformers.utils.versions import require_version
 
+from new_vocab_creation import extend_vocab
+
+
 # from pathlib import Path
 # from transformers_domain_adaptation import DataSelector
 # from transformers_domain_adaptation import VocabAugmentor
@@ -359,15 +362,17 @@ def main():
 
     print('Vocab Len:', len(tokenizer))
     #Vocab Extension
-    if 'bert-base-multilingual-uncased' in model_args.model_name_or_path or 'mbert' in model_args.model_name_or_path:
-        new_token_file = 'mbert.txt'
-    else:
-        new_token_file = 'cse.txt'
-    new_tokens = []
-    with open(new_token_file) as fid:
-        lines = fid.readlines()
-        for line in lines:
-            new_tokens.append(line.strip())
+
+    new_tokens = extend_vocab(data_args.train_file,len(tokenizer),vocab_ext_by=500,use_existing=True)
+    # if 'bert-base-multilingual-uncased' in model_args.model_name_or_path or 'mbert' in model_args.model_name_or_path:
+    #     new_token_file = 'mbert.txt'
+    # else:
+    #     new_token_file = 'cse.txt'
+    # new_tokens = []
+    # with open(new_token_file) as fid:
+    #     lines = fid.readlines()
+    #     for line in lines:
+    #         new_tokens.append(line.strip())
 
     tokenizer.add_tokens(new_tokens)
     print('New Vocab Len:',len(tokenizer))
