@@ -48,7 +48,7 @@ from transformers.trainer_utils import get_last_checkpoint
 from transformers.utils import check_min_version
 from transformers.utils.versions import require_version
 
-from new_vocab_creation import extend_vocab
+from new_tokens import extend_token
 
 
 # from pathlib import Path
@@ -363,7 +363,7 @@ def main():
     print('Vocab Len:', len(tokenizer))
     #Vocab Extension
 
-    new_tokens = extend_vocab(tokenizer,data_args.train_file,len(tokenizer),vocab_ext_by=500,use_existing=True)
+    new_tokens = extend_token(tokenizer,data_args.train_file,len(tokenizer),vocab_ext_by=500,use_existing=True)
     # if 'bert-base-multilingual-uncased' in model_args.model_name_or_path or 'mbert' in model_args.model_name_or_path:
     #     new_token_file = 'mbert.txt'
     # else:
@@ -377,7 +377,7 @@ def main():
     tokenizer.add_tokens(new_tokens)
     print('New Vocab Len:',len(tokenizer))
     model.resize_token_embeddings(len(tokenizer))
-
+    exit(0)
     # Preprocessing the datasets.
     # First we tokenize all the texts.
     if training_args.do_train:
