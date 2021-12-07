@@ -16,7 +16,7 @@ data = {"small": {"gen": "../../../../datasets/cro_corpus/use/LM_general_small.t
 model_cards ={"mbert":"bert-base-multilingual-cased",
        "csebert":"EMBEDDIA/crosloengual-bert",
        }
-per_device_train_batch_sizes= {"mbert":24, "csebert":40}
+per_device_train_batch_sizes= {"mbert":'24', "csebert":'40'}
 vocab_init_types=["randon","avg","sum","max"]
 
 if __name__ == "__main__":
@@ -28,11 +28,11 @@ if __name__ == "__main__":
 
     python_path = "~/anaconda3/bin/python"
     cache_dir = "./cache"
-    gradient_accumulation_steps = 64
-    per_device_eval_batch_size = 18
-    max_seq_length = 256
-    num_train_epochs = 5
-    validation_split_percentage = 10
+    gradient_accumulation_steps = '64'
+    per_device_eval_batch_size = '18'
+    max_seq_length = '256'
+    num_train_epochs = '5'
+    validation_split_percentage = '10'
 
     for bert in berts:
         model_card = model_cards[bert]
