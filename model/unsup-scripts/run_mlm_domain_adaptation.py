@@ -75,8 +75,6 @@ def new_word_embedding(new_tokens,tokenizer,model,method='random'):
         token_idx = token.input_ids
         if len(set(token_idx))>1: #Only add when token is split into more than 1
             # print(i, token_idx, new_token, len(tokenizer))
-            token_emb = model.bert.embeddings.word_embeddings.weight[token_idx].data
-
             old_len = len(tokenizer)
             tokenizer.add_tokens(new_token)
 
@@ -86,14 +84,15 @@ def new_word_embedding(new_tokens,tokenizer,model,method='random'):
                 model.resize_token_embeddings(len(tokenizer))
                 new_word_idx = len(tokenizer) - 1
 
-                if method != 'random':
+                if method != 'random': #For random, automatically random weight will be assigned
+                    token_emb = model.bert.embeddings.word_embeddings.weight[token_idx].data
                     if method == 'avg':
                         new_token_emb = torch.mean(token_emb, axis=0).unsqueeze(0)
                     elif method == 'max':
                         new_token_emb = torch.max(token_emb, axis=0)[0].unsqueeze(0)
                     elif method == 'sum':
                         new_token_emb = torch.sum(token_emb, axis=0).unsqueeze(0)
-                model.bert.embeddings.word_embeddings.weight[new_word_idx].data = new_token_emb
+                    model.bert.embeddings.word_embeddings.weight[new_word_idx].data = new_token_emb
 
     return tokenizer, model
 
