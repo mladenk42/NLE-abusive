@@ -28,6 +28,7 @@ import sys
 from dataclasses import dataclass, field
 from typing import Optional
 
+import torch
 import datasets
 from datasets import load_dataset
 
@@ -65,6 +66,29 @@ MODEL_CONFIG_CLASSES = list(MODEL_FOR_MASKED_LM_MAPPING.keys())
 MODEL_TYPES = tuple(conf.model_type for conf in MODEL_CONFIG_CLASSES)
 
 
+def new_word_embedding(new_tokens,tokenizer,model,method='avg'):
+    #Add word one by one. This assumes that 'new_tokens' is not coverred in the vocabulary
+    for new_token in new_tokens:
+        token = tokenizer(new_token, add_special_tokens=False, return_attention_mask=False, return_token_type_ids=False)
+        token_idx = token.input_ids
+        token_emb = model.bert.embeddings.word_embeddings.weight[token_idx]
+
+        tokenizer.add_tokens(new_token)
+        print('New Vocab Len:', len(tokenizer))
+        model.resize_token_embeddings(len(tokenizer))
+        new_word_idx = len(tokenizer) - 1
+
+        if method != 'random':
+            if method == 'avg':
+                new_token_emb = torch.mean(token_emb, axis=0).unsqueeze(0)
+            elif method == 'max':
+                new_token_emb = torch.max(token_emb, axis=0)[0].unsqueeze(0)
+
+            model.bert.embeddings.word_embeddings.weight[new_word_idx] = new_token_emb
+
+    return tokenizer, model
+
+
 @dataclass
 class ModelArguments:
     """
@@ -82,6 +106,12 @@ class ModelArguments:
         default=None,
         metadata={"help": "If training from scratch, pass a model type from the list: " + ", ".join(MODEL_TYPES)},
     )
+
+    vocab_init_type: Optional[str] = field(
+        default="random",
+        metadata={"help": "If vocabulary extension then how to initialize model options random/avg/max/sum "},
+    )
+
     config_overrides: Optional[str] = field(
         default=None,
         metadata={
@@ -213,6 +243,8 @@ def main():
     else:
         model_args, data_args, training_args = parser.parse_args_into_dataclasses()
 
+    print(model_args)
+    exit(0)
     # Setup logging
     logging.basicConfig(
         format="%(asctime)s - %(levelname)s - %(name)s - %(message)s",
