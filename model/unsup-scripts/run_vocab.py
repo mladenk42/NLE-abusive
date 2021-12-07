@@ -5,8 +5,8 @@ import sys
 
 import subprocess
 
-data = {"small": {"gen": "../../../../datasets/cro_corpus/use/LM_general_small.txt",
-                  "24h":"../../../../datasets/cro_corpus/use/LM_24h_small.txt"
+data = {"small": {"gen": "/scratch-local/ravi/datasets/cro_corpus/use/LM_general_small.txt",
+                  "24h":"/scratch-local/ravi/datasets/cro_corpus/use/LM_24h_small.txt"
                   },
         "large": {
 
