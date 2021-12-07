@@ -66,7 +66,7 @@ MODEL_CONFIG_CLASSES = list(MODEL_FOR_MASKED_LM_MAPPING.keys())
 MODEL_TYPES = tuple(conf.model_type for conf in MODEL_CONFIG_CLASSES)
 
 
-def new_word_embedding(new_tokens,tokenizer,model,method='avg'):
+def new_word_embedding(new_tokens,tokenizer,model,method='random'):
     #Add word one by one. This assumes that 'new_tokens' is not coverred in the vocabulary
     for new_token in new_tokens:
         token = tokenizer(new_token, add_special_tokens=False, return_attention_mask=False, return_token_type_ids=False)
@@ -83,6 +83,9 @@ def new_word_embedding(new_tokens,tokenizer,model,method='avg'):
                 new_token_emb = torch.mean(token_emb, axis=0).unsqueeze(0)
             elif method == 'max':
                 new_token_emb = torch.max(token_emb, axis=0)[0].unsqueeze(0)
+            elif method == 'sum':
+                new_token_emb = torch.sum(token_emb, axis=0).unsqueeze(0)
+
 
             model.bert.embeddings.word_embeddings.weight[new_word_idx] = new_token_emb
 
@@ -243,8 +246,7 @@ def main():
     else:
         model_args, data_args, training_args = parser.parse_args_into_dataclasses()
 
-    print(model_args)
-    exit(0)
+
     # Setup logging
     logging.basicConfig(
         format="%(asctime)s - %(levelname)s - %(name)s - %(message)s",
@@ -406,9 +408,11 @@ def main():
         for line in lines:
             new_tokens.append(line.strip())
 
-    tokenizer.add_tokens(new_tokens)
+    tokenizer, model = new_word_embedding(new_tokens, tokenizer, model, method=model_args.vocab_init_type)
+    # model_args.vocab_init_type
+    # tokenizer.add_tokens(new_tokens)
     print('New Vocab Len:',len(tokenizer))
-    model.resize_token_embeddings(len(tokenizer))
+    # model.resize_token_embeddings(len(tokenizer))
     # exit(0)
     # Preprocessing the datasets.
     # First we tokenize all the texts.
