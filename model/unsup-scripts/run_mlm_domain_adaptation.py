@@ -70,11 +70,11 @@ def new_word_embedding(new_tokens,tokenizer,model,method='random'):
     #Add word one by one. This assumes that 'new_tokens' is not coverred in the vocabulary
     #TODO: Find a better way, this is too slow
     for i, new_token in enumerate(new_tokens):
-        if i < 900: continue
+        # if i < 900: continue
         token = tokenizer(new_token, add_special_tokens=False, return_attention_mask=False, return_token_type_ids=False)
         token_idx = token.input_ids
         if len(set(token_idx))>1: #Only add when token is split into more than 1
-            print(i, token_idx, new_token, len(tokenizer))
+            # print(i, token_idx, new_token, len(tokenizer))
             token_emb = model.bert.embeddings.word_embeddings.weight[token_idx].data
 
             old_len = len(tokenizer)
