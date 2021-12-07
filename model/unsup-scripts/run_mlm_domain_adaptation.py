@@ -75,7 +75,7 @@ def new_word_embedding(new_tokens,tokenizer,model,method='random'):
         token_idx = token.input_ids
         if len(set(token_idx))>1: #Only add when token is split into more than 1
             print(i, token_idx, new_token, len(tokenizer))
-            token_emb = model.bert.embeddings.word_embeddings.weight[token_idx]
+            token_emb = model.bert.embeddings.word_embeddings.weight[token_idx].data
 
             old_len = len(tokenizer)
             tokenizer.add_tokens(new_token)
@@ -93,7 +93,7 @@ def new_word_embedding(new_tokens,tokenizer,model,method='random'):
                         new_token_emb = torch.max(token_emb, axis=0)[0].unsqueeze(0)
                     elif method == 'sum':
                         new_token_emb = torch.sum(token_emb, axis=0).unsqueeze(0)
-                model.bert.embeddings.word_embeddings.weight[new_word_idx] = new_token_emb
+                model.bert.embeddings.word_embeddings.weight[new_word_idx].data = new_token_emb
 
     return tokenizer, model
 
@@ -415,21 +415,21 @@ def main():
             new_tokens.append(line.strip())
 
     # new_token = new_tokens[900]
-    for new_token in new_tokens[990:]:
-        token = tokenizer(new_token, add_special_tokens=False, return_attention_mask=False, return_token_type_ids=False)
-        token_idx = token.input_ids
-        token_emb = model.bert.embeddings.word_embeddings.weight[token_idx]
+    # for new_token in new_tokens[990:]:
+    #     token = tokenizer(new_token, add_special_tokens=False, return_attention_mask=False, return_token_type_ids=False)
+    #     token_idx = token.input_ids
+    #     token_emb = model.bert.embeddings.word_embeddings.weight[token_idx]
+    #
+    #     tokenizer.add_tokens(new_token)
+    #     print('New Vocab Len:', len(tokenizer))
+    #     model.resize_token_embeddings(len(tokenizer))
+    #     new_word_idx = len(tokenizer) - 1
+    #
+    #     new_token_emb = torch.mean(token_emb, axis=0).unsqueeze(0)
+    #     model.bert.embeddings.word_embeddings.weight[new_word_idx] = new_token_emb
 
-        tokenizer.add_tokens(new_token)
-        print('New Vocab Len:', len(tokenizer))
-        model.resize_token_embeddings(len(tokenizer))
-        new_word_idx = len(tokenizer) - 1
 
-        new_token_emb = torch.mean(token_emb, axis=0).unsqueeze(0)
-        model.bert.embeddings.word_embeddings.weight[new_word_idx] = new_token_emb
-
-
-    # tokenizer, model = new_word_embedding(new_tokens, tokenizer, model, method=model_args.vocab_init_type)
+    tokenizer, model = new_word_embedding(new_tokens, tokenizer, model, method=model_args.vocab_init_type)
     # model_args.vocab_init_type
     # tokenizer.add_tokens(new_tokens)
     print('New Vocab Len:',len(tokenizer))
