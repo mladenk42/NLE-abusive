@@ -68,27 +68,34 @@ MODEL_TYPES = tuple(conf.model_type for conf in MODEL_CONFIG_CLASSES)
 
 def new_word_embedding(new_tokens,tokenizer,model,method='random'):
     #Add word one by one. This assumes that 'new_tokens' is not coverred in the vocabulary
-    for new_token in new_tokens:
+    #TODO: Find a better way, this is too slow
+    for i, new_token in enumerate(new_tokens):
+        if i < 900: continue
         token = tokenizer(new_token, add_special_tokens=False, return_attention_mask=False, return_token_type_ids=False)
         token_idx = token.input_ids
-        if len(token_idx)>1: #Only add when token is split into more than 1
+        if len(set(token_idx))>1: #Only add when token is split into more than 1
+            print(i, token_idx, new_token, len(tokenizer))
             token_emb = model.bert.embeddings.word_embeddings.weight[token_idx]
 
+            old_len = len(tokenizer)
             tokenizer.add_tokens(new_token)
-            # print('New Vocab Len:', len(tokenizer))
-            model.resize_token_embeddings(len(tokenizer))
-            new_word_idx = len(tokenizer) - 1
 
-            if method != 'random':
-                if method == 'avg':
-                    new_token_emb = torch.mean(token_emb, axis=0).unsqueeze(0)
-                elif method == 'max':
-                    new_token_emb = torch.max(token_emb, axis=0)[0].unsqueeze(0)
-                elif method == 'sum':
-                    new_token_emb = torch.sum(token_emb, axis=0).unsqueeze(0)
+            if len(len(tokenizer)) > old_len: # Process only if there is change in Vocabulary
+
+                # print('New Vocab Len:', len(tokenizer))
+                model.resize_token_embeddings(len(tokenizer))
+                new_word_idx = len(tokenizer) - 1
+
+                if method != 'random':
+                    if method == 'avg':
+                        new_token_emb = torch.mean(token_emb, axis=0).unsqueeze(0)
+                    elif method == 'max':
+                        new_token_emb = torch.max(token_emb, axis=0)[0].unsqueeze(0)
+                    elif method == 'sum':
+                        new_token_emb = torch.sum(token_emb, axis=0).unsqueeze(0)
 
 
-                model.bert.embeddings.word_embeddings.weight[new_word_idx] = new_token_emb
+                    model.bert.embeddings.word_embeddings.weight[new_word_idx] = new_token_emb
 
     return tokenizer, model
 
