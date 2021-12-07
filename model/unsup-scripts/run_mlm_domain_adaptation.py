@@ -71,23 +71,24 @@ def new_word_embedding(new_tokens,tokenizer,model,method='random'):
     for new_token in new_tokens:
         token = tokenizer(new_token, add_special_tokens=False, return_attention_mask=False, return_token_type_ids=False)
         token_idx = token.input_ids
-        token_emb = model.bert.embeddings.word_embeddings.weight[token_idx]
+        if len(token_idx)>1: #Only add when token is split into more than 1
+            token_emb = model.bert.embeddings.word_embeddings.weight[token_idx]
 
-        tokenizer.add_tokens(new_token)
-        # print('New Vocab Len:', len(tokenizer))
-        model.resize_token_embeddings(len(tokenizer))
-        new_word_idx = len(tokenizer) - 1
+            tokenizer.add_tokens(new_token)
+            # print('New Vocab Len:', len(tokenizer))
+            model.resize_token_embeddings(len(tokenizer))
+            new_word_idx = len(tokenizer) - 1
 
-        if method != 'random':
-            if method == 'avg':
-                new_token_emb = torch.mean(token_emb, axis=0).unsqueeze(0)
-            elif method == 'max':
-                new_token_emb = torch.max(token_emb, axis=0)[0].unsqueeze(0)
-            elif method == 'sum':
-                new_token_emb = torch.sum(token_emb, axis=0).unsqueeze(0)
+            if method != 'random':
+                if method == 'avg':
+                    new_token_emb = torch.mean(token_emb, axis=0).unsqueeze(0)
+                elif method == 'max':
+                    new_token_emb = torch.max(token_emb, axis=0)[0].unsqueeze(0)
+                elif method == 'sum':
+                    new_token_emb = torch.sum(token_emb, axis=0).unsqueeze(0)
 
 
-            model.bert.embeddings.word_embeddings.weight[new_word_idx] = new_token_emb
+                model.bert.embeddings.word_embeddings.weight[new_word_idx] = new_token_emb
 
     return tokenizer, model
 
