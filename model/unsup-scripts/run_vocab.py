@@ -26,7 +26,7 @@ if __name__ == "__main__":
     dataset_types = ["gen","24h"]
     dataset_sizes = ["small"]
 
-    python_path = " /homes/ravi/anaconda3/bin/python"
+    python_path = "/homes/ravi/anaconda3/bin/python"
     cache_dir = "./cache"
     gradient_accumulation_steps = '64'
     per_device_eval_batch_size = '18'
