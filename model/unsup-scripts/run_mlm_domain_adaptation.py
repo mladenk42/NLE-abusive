@@ -80,7 +80,7 @@ def new_word_embedding(new_tokens,tokenizer,model,method='random'):
             old_len = len(tokenizer)
             tokenizer.add_tokens(new_token)
 
-            if len(len(tokenizer)) > old_len: # Process only if there is change in Vocabulary
+            if len(tokenizer) > old_len: # Process only if there is change in Vocabulary
 
                 # print('New Vocab Len:', len(tokenizer))
                 model.resize_token_embeddings(len(tokenizer))
@@ -93,9 +93,7 @@ def new_word_embedding(new_tokens,tokenizer,model,method='random'):
                         new_token_emb = torch.max(token_emb, axis=0)[0].unsqueeze(0)
                     elif method == 'sum':
                         new_token_emb = torch.sum(token_emb, axis=0).unsqueeze(0)
-
-
-                    model.bert.embeddings.word_embeddings.weight[new_word_idx] = new_token_emb
+                model.bert.embeddings.word_embeddings.weight[new_word_idx] = new_token_emb
 
     return tokenizer, model
 
@@ -416,7 +414,22 @@ def main():
         for line in lines:
             new_tokens.append(line.strip())
 
-    tokenizer, model = new_word_embedding(new_tokens, tokenizer, model, method=model_args.vocab_init_type)
+    # new_token = new_tokens[900]
+    for new_token in new_tokens[990:]:
+        token = tokenizer(new_token, add_special_tokens=False, return_attention_mask=False, return_token_type_ids=False)
+        token_idx = token.input_ids
+        token_emb = model.bert.embeddings.word_embeddings.weight[token_idx]
+
+        tokenizer.add_tokens(new_token)
+        print('New Vocab Len:', len(tokenizer))
+        model.resize_token_embeddings(len(tokenizer))
+        new_word_idx = len(tokenizer) - 1
+
+        new_token_emb = torch.mean(token_emb, axis=0).unsqueeze(0)
+        model.bert.embeddings.word_embeddings.weight[new_word_idx] = new_token_emb
+
+
+    # tokenizer, model = new_word_embedding(new_tokens, tokenizer, model, method=model_args.vocab_init_type)
     # model_args.vocab_init_type
     # tokenizer.add_tokens(new_tokens)
     print('New Vocab Len:',len(tokenizer))
