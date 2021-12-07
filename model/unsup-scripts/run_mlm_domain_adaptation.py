@@ -74,7 +74,7 @@ def new_word_embedding(new_tokens,tokenizer,model,method='random'):
         token_emb = model.bert.embeddings.word_embeddings.weight[token_idx]
 
         tokenizer.add_tokens(new_token)
-        print('New Vocab Len:', len(tokenizer))
+        # print('New Vocab Len:', len(tokenizer))
         model.resize_token_embeddings(len(tokenizer))
         new_word_idx = len(tokenizer) - 1
 
