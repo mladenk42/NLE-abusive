@@ -6,8 +6,21 @@ import numpy as np
 import os
 
 from torch.utils.data import DataLoader
-from transformers import AutoConfig, AutoTokenizer, AutoModelForSequenceClassification, TrainingArguments,DataCollatorWithPadding
-from transformers import Trainer
+import transformers
+from accelerate import Accelerator
+from transformers import (
+    CONFIG_MAPPING,
+    MODEL_MAPPING,
+    AdamW,
+    AutoConfig,
+    AutoModelForTokenClassification,
+    AutoTokenizer,
+    DataCollatorForTokenClassification,
+    SchedulerType,
+    default_data_collator,
+    get_scheduler,
+    set_seed,
+)
 logger = logging.getLogger(__name__)
 
 # import datasets
