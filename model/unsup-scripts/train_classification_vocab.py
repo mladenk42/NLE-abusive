@@ -148,16 +148,16 @@ if __name__ == '__main__':
 #     model_card= args.model_card
     all_steps = args.all_steps
 
-    model_dir = model_cards[model_card]
+#     model_dir = model_cards[model_card]
     model_dirs = []
-    if all_steps:
-        list_dir = os.listdir(model_dir)
-        for item in list_dir:
-            if 'checkpoint' in item:
-                logging_steps = 50000 #TODO: maybe change letter. For now, a large Logging step
-                tmp_dir = os.path.join(model_dir, item + '/')
-                model_dirs.append(tmp_dir)
-    model_dirs.append(model_dir)
+#     if all_steps:
+#         list_dir = os.listdir(model_dir)
+#         for item in list_dir:
+#             if 'checkpoint' in item:
+#                 logging_steps = 50000 #TODO: maybe change letter. For now, a large Logging step
+#                 tmp_dir = os.path.join(model_dir, item + '/')
+#                 model_dirs.append(tmp_dir)
+    model_dirs.append(model_card)
     print(model_dirs)
 
     tokenizer = AutoTokenizer.from_pretrained(model_dir)
@@ -212,7 +212,6 @@ if __name__ == '__main__':
 
         model = AutoModelForSequenceClassification.from_pretrained(model_dir, num_labels=2)
 
-        #TODO: Trainer not working on Server due to some issue
         trainer = Trainer(
             model=model,  # the instantiated Transformers model to be trained
             args=training_args,  # training arguments, defined above
@@ -222,7 +221,6 @@ if __name__ == '__main__':
             compute_metrics=compute_metrics,
             data_collator=data_collator,
         )
-
         train_result = trainer.train(resume_from_checkpoint=None)
         trainer.save_model()  # Saves the tokenizer too for easy upload
         metrics = train_result.metrics
@@ -234,7 +232,6 @@ if __name__ == '__main__':
         trainer.save_state()
 
         # Evaluation
-
         logger.info("*** Evaluate ***")
         metrics = trainer.evaluate()
         metrics = fix_metrics(metrics)
