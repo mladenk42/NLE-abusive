@@ -142,6 +142,39 @@ if __name__ == '__main__':
         default=None,
         help="Total number of training steps to perform. If provided, overrides num_train_epochs.",
     )
+    parser.add_argument(
+        "--learning_rate",
+        type=float,
+        default=5e-5,
+        help="Initial learning rate (after the potential warmup period) to use.",
+    )
+    parser.add_argument(
+        "--lr_scheduler_type",
+        type=SchedulerType,
+        default="linear",
+        help="The scheduler type to use.",
+        choices=["linear", "cosine", "cosine_with_restarts", "polynomial", "constant", "constant_with_warmup"],
+    )
+    parser.add_argument(
+        "--num_warmup_steps", type=int, default=0, help="Number of steps for the warmup in the lr scheduler."
+    )
+    parser.add_argument(
+        "--gradient_accumulation_steps",
+        type=int,
+        default=1,
+        help="Number of updates steps to accumulate before performing a backward/update pass.",
+    )
+
+    parser.add_argument(
+        "--max_length",
+        type=int,
+        default=128,
+        help=(
+            "The maximum total input sequence length after tokenization. Sequences longer than this will be truncated,"
+            " sequences shorter will be padded if `--pad_to_max_lengh` is passed."
+        ),
+    )
+
 
     # Dataset
     parser.add_argument("-dataset", type=str, default='small', help='Training validation set large/small')
@@ -173,7 +206,13 @@ if __name__ == '__main__':
     save_total_limit = args.save_total_limit
     save_strategy = args.save_strategy
     max_train_steps = args.max_train_steps
-    gradient_accumulation_steps =1
+    gradient_accumulation_steps =args.gradient_accumulation_steps
+    learning_rate = args.learning_rate
+    lr_scheduler_type = args.lr_scheduler_type
+    num_warmup_steps = args.num_warmup_steps
+    max_length = args.max_length
+
+
 
     dataset = args.dataset
     train_file = datasets[dataset]['train_file']
@@ -181,7 +220,7 @@ if __name__ == '__main__':
     test_file = datasets[dataset]['test_file']
     # encode_data = args.encode_data
     model_card= args.model_card
-    all_steps = args.all_steps
+    # all_steps = args.all_steps
 
     #     model_dir = model_cards[model_card]
     # model_dirs = []
@@ -203,14 +242,14 @@ if __name__ == '__main__':
 
     # TODO: Maybe want to save the dataset, so that processing is less
     train_texts, train_labels = read_data(train_file)
-    train_encodings = tokenizer(train_texts, truncation=True, padding=True)
+    train_encodings = tokenizer(train_texts, truncation=True, padding=True, max_length=max_length)
     train_dataset = HRDataset(train_encodings, train_labels)
     val_texts, val_labels = read_data(val_file)
-    val_encodings = tokenizer(val_texts, truncation=True, padding=True)
+    val_encodings = tokenizer(val_texts, truncation=True, padding=True, max_length=max_length)
     val_dataset = HRDataset(val_encodings, val_labels)
 
     test_texts, test_labels = read_data(test_file)
-    test_encodings = tokenizer(test_texts, truncation=True, padding=True)
+    test_encodings = tokenizer(test_texts, truncation=True, padding=True, max_length=max_length)
     test_dataset = HRDataset(test_encodings, test_labels)
 
     train_dataloader = DataLoader(
@@ -219,29 +258,28 @@ if __name__ == '__main__':
     val_dataloader = DataLoader(val_dataset, collate_fn=data_collator, batch_size=per_device_eval_batch_size)
     test_dataloader = DataLoader(test_dataset, collate_fn=data_collator, batch_size=per_device_eval_batch_size)
 
-    splits = ['val','test']
-    eval_dataloaders = [val_dataloader,test_dataloader]
+
     # Optimizer
     # Split weights in two groups, one with weight decay and the other not.
     no_decay = ["bias", "LayerNorm.weight"]
     optimizer_grouped_parameters = [
         {
             "params": [p for n, p in model.named_parameters() if not any(nd in n for nd in no_decay)],
-            "weight_decay": args.weight_decay,
+            "weight_decay": weight_decay,
         },
         {
             "params": [p for n, p in model.named_parameters() if any(nd in n for nd in no_decay)],
             "weight_decay": 0.0,
         },
     ]
-    optimizer = AdamW(optimizer_grouped_parameters, lr=args.learning_rate)
+    optimizer = AdamW(optimizer_grouped_parameters, lr=learning_rate)
 
     # Use the device given by the `accelerator` object.
     device = accelerator.device
     model.to(device)
 
     # Prepare everything with our `accelerator`.
-    model, optimizer, train_dataloader, eval_dataloader, test_dataloader = accelerator.prepare(
+    model, optimizer, train_dataloader, val_dataloader, test_dataloader = accelerator.prepare(
         model, optimizer, train_dataloader, val_dataloader, test_dataloader
     )
 
@@ -253,56 +291,82 @@ if __name__ == '__main__':
         num_train_epochs = math.ceil(max_train_steps / num_update_steps_per_epoch)
 
     lr_scheduler = get_scheduler(
-        name=args.lr_scheduler_type,
+        name=lr_scheduler_type,
         optimizer=optimizer,
-        num_warmup_steps=args.num_warmup_steps,
-        num_training_steps=args.max_train_steps,
+        num_warmup_steps=num_warmup_steps,
+        num_training_steps=max_train_steps,
     )
 
     # Only show the progress bar once on each machine.
-    progress_bar = tqdm(range(args.max_train_steps), disable=not accelerator.is_local_main_process)
+    progress_bar = tqdm(range(max_train_steps), disable=not accelerator.is_local_main_process)
     completed_steps = 0
 
+    all_train_loss = []
+    all_val_loss = []
+    prev_val_loss = 9999999999999999 # A very large model
     for epoch in range(num_train_epochs):
         model.train()
+        train_loss = 0
         for step, batch in enumerate(train_dataloader):
             outputs = model(**batch)
             loss = outputs.loss
-            loss = loss / args.gradient_accumulation_steps
+            loss = loss / gradient_accumulation_steps
             accelerator.backward(loss)
-            if step % args.gradient_accumulation_steps == 0 or step == len(train_dataloader) - 1:
+            train_loss += loss
+            if step % gradient_accumulation_steps == 0 or step == len(train_dataloader) - 1:
                 optimizer.step()
                 lr_scheduler.step()
                 optimizer.zero_grad()
                 progress_bar.update(1)
                 completed_steps += 1
 
-            if completed_steps >= args.max_train_steps:
+            if completed_steps >= max_train_steps:
                 break
 
         model.eval()
 
-        for spilt, eval_dataloader in zip(splits, eval_dataloaders):
+        for spilt, eval_dataloader in zip(['val', 'test'], [val_dataloader, test_dataloader]):
 
             metric_acc = load_metric("accuracy")
             metric_f1 = load_metric("f1")
 
+            all_predictions = []
+            all_references = []
+            val_loss  = 0
             for step, batch in enumerate(eval_dataloader):
                 outputs = model(**batch)
                 predictions = outputs.logits.argmax(dim=-1)
-                metric_acc.add_batch(
-                    predictions=accelerator.gather(predictions),
-                    references=accelerator.gather(batch["labels"]),
-                )
-                metric_f1.add_batch(
-                    predictions=accelerator.gather(predictions),
-                    references=accelerator.gather(batch["labels"]),
-                )
 
-            eval_metric_acc = metric_acc.compute()
-            accelerator.print(f"epoch {epoch}:", eval_metric_acc)
-            logger.info(f"epoch {epoch}:", eval_metric_acc)
+                all_predictions.extend(predictions.tolist())
+                all_references.extend(batch["labels"].tolist())
 
-            eval_metric_f1 = metric_f1.compute()
-            accelerator.print(f"epoch {epoch}:", eval_metric_f1)
-            logger.info(f"epoch {epoch}:", eval_metric_f1)
+                if spilt == 'val':
+                    loss = outputs.loss
+                    val_loss += loss / gradient_accumulation_steps
+
+            #Save All results for Future
+            result = pd.DataFrame([all_references,all_predictions])
+            result = result.transpose()
+            result.columns = ['ref', 'pred']
+            result.head()
+            file_name = output_dir + '/'+spilt +'_'+str(epoch)+'.csv'
+            result.to_csv(file_name, index=False)
+            print('output saved to ', file_name)
+        all_train_loss.extend(train_loss.tolist())
+        all_val_loss.extend(val_loss.tolist())
+        # Save Model when validation loss decreased
+        if output_dir is not None and prev_val_loss > val_loss:
+            print('Saving Model to ', output_dir)
+            accelerator.wait_for_everyone()
+            unwrapped_model = accelerator.unwrap_model(model)
+            unwrapped_model.save_pretrained(output_dir, save_function=accelerator.save)
+            prev_val_loss = val_loss
+
+    # Save All Loss for the Best Model
+    result = pd.DataFrame([all_train_loss, all_val_loss])
+    result = result.transpose()
+    result.columns = ['train', 'val']
+    result.head()
+    loss_file_name = output_dir + '/loss.csv'
+    result.to_csv(loss_file_name, index=False)
+    print('Loss saved to ', loss_file_name)
