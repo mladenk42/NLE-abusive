@@ -124,8 +124,8 @@ if __name__ == '__main__':
     parser.add_argument("-output_dir", type=str, default="../results/claasify/", help='Output Directory')
     parser.add_argument("-logging_dir", type=str, default="../logs/claasify/", help='Logging Directory')
     parser.add_argument("-num_train_epochs", type=int, default=5, help='Number of training Epochs')
-    parser.add_argument("-per_device_train_batch_size", type=int, default=24, help='Traiing Batch Size')
-    parser.add_argument("-per_device_eval_batch_size", type=int, default=32, help='Evaluation Batch Size')
+    parser.add_argument("-per_device_train_batch_size", type=int, default=16, help='Traiing Batch Size')
+    parser.add_argument("-per_device_eval_batch_size", type=int, default=16, help='Evaluation Batch Size')
     parser.add_argument("-warmup_steps", type=int, default=500, help='Warmup Steps')
     parser.add_argument("-weight_decay", type=int, default=0.01, help='Weight Decay Rate')
     parser.add_argument("-logging_steps", type=int, default=500, help='Logging Steps')
@@ -180,7 +180,7 @@ if __name__ == '__main__':
     parser.add_argument("-dataset", type=str, default='small', help='Training validation set large/small')
 
     # Model
-    parser.add_argument("-model_card", type=str, default='mbert', help='The model directory checkpoint for weights initialization.')
+    parser.add_argument("-model_card", type=str, default='bert-base-multilingual-cased', help='The model directory checkpoint for weights initialization.')
     #     parser.add_argument("-all_steps", action='store_true',
     #                         help='To Train on all steps check point')
 
