@@ -121,19 +121,19 @@ if __name__ == '__main__':
 
     parser = argparse.ArgumentParser()
     # Training Parameters
-    parser.add_argument("-output_dir", type=str, default="../results/classify/xxx", help='Output Directory')
-    parser.add_argument("-logging_dir", type=str, default="../logs/classify/xxx", help='Logging Directory')
-    parser.add_argument("-num_train_epochs", type=int, default=5, help='Number of training Epochs')
-    parser.add_argument("-per_device_train_batch_size", type=int, default=8, help='Training Batch Size')
-    parser.add_argument("-per_device_eval_batch_size", type=int, default=8, help='Evaluation Batch Size')
-    parser.add_argument("-warmup_steps", type=int, default=500, help='Warmup Steps')
-    parser.add_argument("-weight_decay", type=int, default=0.01, help='Weight Decay Rate')
-    parser.add_argument("-logging_steps", type=int, default=500, help='Logging Steps')
-    parser.add_argument("-save_steps", type=int, default=500,
+    parser.add_argument("--output_dir", type=str, default="../results/classify/xxx", help='Output Directory')
+    parser.add_argument("--logging_dir", type=str, default="../logs/classify/xxx", help='Logging Directory')
+    parser.add_argument("--num_train_epochs", type=int, default=5, help='Number of training Epochs')
+    parser.add_argument("--per_device_train_batch_size", type=int, default=8, help='Training Batch Size')
+    parser.add_argument("--per_device_eval_batch_size", type=int, default=8, help='Evaluation Batch Size')
+    parser.add_argument("--warmup_steps", type=int, default=500, help='Warmup Steps')
+    parser.add_argument("--weight_decay", type=int, default=0.01, help='Weight Decay Rate')
+    parser.add_argument("--logging_steps", type=int, default=500, help='Logging Steps')
+    parser.add_argument("--save_steps", type=int, default=500,
                         help='Number of updates steps before two checkpoint saves')
-    parser.add_argument("-save_total_limit", type=int, default=500,
+    parser.add_argument("--save_total_limit", type=int, default=500,
                         help='If a value is passed, will limit the total amount of checkpoints. Deletes the older checkpoints')
-    parser.add_argument("-save_strategy", type=str, default="steps",
+    parser.add_argument("--save_strategy", type=str, default="steps",
                         help='The checkpoint save strategy to adopt during training')
 
     parser.add_argument(
@@ -332,7 +332,7 @@ if __name__ == '__main__':
 
                 all_predictions = []
                 all_references = []
-                val_loss  = 0
+
                 for step, batch in enumerate(eval_dataloader):
                     outputs = model(**batch)
                     predictions = outputs.logits.argmax(dim=-1)
@@ -341,6 +341,8 @@ if __name__ == '__main__':
                     all_references.extend(batch["labels"].tolist())
 
                     if split == 'val':
+                        if step == 0:
+                            val_loss = 0
                         loss = outputs.loss
                         loss = loss / gradient_accumulation_steps
                         val_loss +=loss.item()
@@ -358,7 +360,7 @@ if __name__ == '__main__':
         all_val_loss.append(val_loss)
         # Save Model when validation loss decreased
         if output_dir is not None and prev_val_loss > val_loss:
-            print('Saving Model to ', output_dir)
+            print('Saving Model to ', output_dir, epoch)
             accelerator.wait_for_everyone()
             unwrapped_model = accelerator.unwrap_model(model)
             unwrapped_model.save_pretrained(output_dir, save_function=accelerator.save)
