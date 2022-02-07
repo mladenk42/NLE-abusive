@@ -121,11 +121,11 @@ if __name__ == '__main__':
 
     parser = argparse.ArgumentParser()
     # Training Parameters
-    parser.add_argument("-output_dir", type=str, default="../results/claasify/", help='Output Directory')
-    parser.add_argument("-logging_dir", type=str, default="../logs/claasify/", help='Logging Directory')
+    parser.add_argument("-output_dir", type=str, default="../results/classify/xxx", help='Output Directory')
+    parser.add_argument("-logging_dir", type=str, default="../logs/classify/xxx", help='Logging Directory')
     parser.add_argument("-num_train_epochs", type=int, default=5, help='Number of training Epochs')
-    parser.add_argument("-per_device_train_batch_size", type=int, default=16, help='Traiing Batch Size')
-    parser.add_argument("-per_device_eval_batch_size", type=int, default=16, help='Evaluation Batch Size')
+    parser.add_argument("-per_device_train_batch_size", type=int, default=8, help='Training Batch Size')
+    parser.add_argument("-per_device_eval_batch_size", type=int, default=8, help='Evaluation Batch Size')
     parser.add_argument("-warmup_steps", type=int, default=500, help='Warmup Steps')
     parser.add_argument("-weight_decay", type=int, default=0.01, help='Weight Decay Rate')
     parser.add_argument("-logging_steps", type=int, default=500, help='Logging Steps')
@@ -312,7 +312,7 @@ if __name__ == '__main__':
             loss = outputs.loss
             loss = loss / gradient_accumulation_steps
             accelerator.backward(loss)
-            train_loss += loss
+            train_loss += loss.item()
             if step % gradient_accumulation_steps == 0 or step == len(train_dataloader) - 1:
                 optimizer.step()
                 lr_scheduler.step()
@@ -324,36 +324,38 @@ if __name__ == '__main__':
                 break
 
         model.eval()
+        with torch.no_grad():
+            for split, eval_dataloader in zip(['val', 'test'], [val_dataloader, test_dataloader]):
 
-        for spilt, eval_dataloader in zip(['val', 'test'], [val_dataloader, test_dataloader]):
+                metric_acc = load_metric("accuracy")
+                metric_f1 = load_metric("f1")
 
-            metric_acc = load_metric("accuracy")
-            metric_f1 = load_metric("f1")
+                all_predictions = []
+                all_references = []
+                val_loss  = 0
+                for step, batch in enumerate(eval_dataloader):
+                    outputs = model(**batch)
+                    predictions = outputs.logits.argmax(dim=-1)
 
-            all_predictions = []
-            all_references = []
-            val_loss  = 0
-            for step, batch in enumerate(eval_dataloader):
-                outputs = model(**batch)
-                predictions = outputs.logits.argmax(dim=-1)
+                    all_predictions.extend(predictions.tolist())
+                    all_references.extend(batch["labels"].tolist())
 
-                all_predictions.extend(predictions.tolist())
-                all_references.extend(batch["labels"].tolist())
+                    if split == 'val':
+                        loss = outputs.loss
+                        loss = loss / gradient_accumulation_steps
+                        val_loss +=loss.item()
 
-                if spilt == 'val':
-                    loss = outputs.loss
-                    val_loss += loss / gradient_accumulation_steps
+                #Save All results for Future
+                result = pd.DataFrame([all_references,all_predictions])
+                result = result.transpose()
+                result.columns = ['ref', 'pred']
+                result.head()
+                file_name = output_dir + '/'+split +'_'+str(epoch)+'.csv'
+                result.to_csv(file_name, index=False)
+                print('output saved to ', file_name)
 
-            #Save All results for Future
-            result = pd.DataFrame([all_references,all_predictions])
-            result = result.transpose()
-            result.columns = ['ref', 'pred']
-            result.head()
-            file_name = output_dir + '/'+spilt +'_'+str(epoch)+'.csv'
-            result.to_csv(file_name, index=False)
-            print('output saved to ', file_name)
-        all_train_loss.extend(train_loss.tolist())
-        all_val_loss.extend(val_loss.tolist())
+        all_train_loss.append(train_loss)
+        all_val_loss.append(val_loss)
         # Save Model when validation loss decreased
         if output_dir is not None and prev_val_loss > val_loss:
             print('Saving Model to ', output_dir)
