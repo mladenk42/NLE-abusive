@@ -177,10 +177,10 @@ if __name__ == '__main__':
 
 
     # Dataset
-    parser.add_argument("-dataset", type=str, default='small', help='Training validation set large/small')
+    parser.add_argument("--dataset", type=str, default='small', help='Training validation set large/small')
 
     # Model
-    parser.add_argument("-model_card", type=str, default='bert-base-multilingual-cased', help='The model directory checkpoint for weights initialization.')
+    parser.add_argument("--model_card", type=str, default='bert-base-multilingual-cased', help='The model directory checkpoint for weights initialization.')
     #     parser.add_argument("-all_steps", action='store_true',
     #                         help='To Train on all steps check point')
 
