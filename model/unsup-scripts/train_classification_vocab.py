@@ -7,6 +7,8 @@ import math
 import os
 from tqdm.auto import tqdm
 
+from sklearn.metrics import f1_score, accuracy_score
+
 from torch.utils.data import DataLoader
 import transformers
 from accelerate import Accelerator
@@ -123,9 +125,9 @@ if __name__ == '__main__':
     # Training Parameters
     parser.add_argument("--output_dir", type=str, default="../results/classify/xxx", help='Output Directory')
     parser.add_argument("--logging_dir", type=str, default="../logs/classify/xxx", help='Logging Directory')
-    parser.add_argument("--num_train_epochs", type=int, default=10, help='Number of training Epochs')
-    parser.add_argument("--per_device_train_batch_size", type=int, default=8, help='Training Batch Size')
-    parser.add_argument("--per_device_eval_batch_size", type=int, default=8, help='Evaluation Batch Size')
+    parser.add_argument("--num_train_epochs", type=int, default=5, help='Number of training Epochs')
+    parser.add_argument("--per_device_train_batch_size", type=int, default=16, help='Training Batch Size')
+    parser.add_argument("--per_device_eval_batch_size", type=int, default=16, help='Evaluation Batch Size')
     parser.add_argument("--warmup_steps", type=int, default=500, help='Warmup Steps')
     parser.add_argument("--weight_decay", type=int, default=0.01, help='Weight Decay Rate')
     parser.add_argument("--logging_steps", type=int, default=500, help='Logging Steps')
@@ -303,6 +305,10 @@ if __name__ == '__main__':
 
     all_train_loss = []
     all_val_loss = []
+    all_val_f1= []
+    all_val_acc = []
+    all_test_f1 = []
+    all_test_acc = []
     prev_val_loss = 9999999999999999 # A very large model
     for epoch in range(num_train_epochs):
         model.train()
@@ -356,6 +362,17 @@ if __name__ == '__main__':
                 result.to_csv(file_name, index=False)
                 print('output saved to ', file_name)
 
+                f1 =  f1_score(all_references, all_predictions, average="macro")
+                acc = accuracy_score(all_references, all_predictions)
+
+                if split == 'val':
+                    all_val_f1.append(f1)
+                    all_val_acc.append(acc)
+
+                else:
+                    all_test_f1.append(f1)
+                    all_test_acc.append(acc)
+
         all_train_loss.append(train_loss)
         all_val_loss.append(val_loss)
         # Save Model when validation loss decreased
@@ -367,10 +384,13 @@ if __name__ == '__main__':
             prev_val_loss = val_loss
 
     # Save All Loss for the Best Model
-    result = pd.DataFrame([all_train_loss, all_val_loss])
+    result = pd.DataFrame([all_train_loss, all_val_loss, all_val_f1, all_val_acc, all_test_f1, all_test_acc ])
     result = result.transpose()
-    result.columns = ['train', 'val']
+    result.columns = ['train_loss', 'val_loss', 'val_f1', 'val_acc', 'test_f1', 'test_acc']
     result.head()
-    loss_file_name = output_dir + '/loss.csv'
+    loss_file_name = output_dir + '/metrics.csv'
     result.to_csv(loss_file_name, index=False)
     print('Loss saved to ', loss_file_name)
+
+
+
