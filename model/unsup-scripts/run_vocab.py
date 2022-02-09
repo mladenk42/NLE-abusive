@@ -17,7 +17,7 @@ model_cards ={"mbert":"bert-base-multilingual-cased",
        "csebert":"EMBEDDIA/crosloengual-bert",
        }
 per_device_train_batch_sizes= {"mbert":'24', "csebert":'40'}
-# vocab_init_types=["random","avg","sum","max"]
+# vocab_init_types=["no","random","avg","sum","max"]
 vocab_init_types=["no"]
 
 if __name__ == "__main__":
@@ -45,7 +45,7 @@ if __name__ == "__main__":
 
 
                 for vocab_init_type in vocab_init_types:
-                    output_dir = '../output/' + bert + '_finetune_' + dataset_size + '_' + dataset_type +'_vocab'+'_'+vocab_init_type
+                    output_dir = '/import/cogsci/ravi/codes/NLE-abusive/model/output/' + bert + '_finetune_' + dataset_size + '_' + dataset_type +'_vocab'+'_'+vocab_init_type
 
                     list_arg = [
                                 python_path, "run_mlm_domain_adaptation.py",
