@@ -428,7 +428,7 @@ def main():
     #     model.bert.embeddings.word_embeddings.weight[new_word_idx] = new_token_emb
 
 
-    if model_args.vocab_init_type != 'No':
+    if model_args.vocab_init_type != 'no':
         tokenizer, model = new_word_embedding(new_tokens, tokenizer, model, method=model_args.vocab_init_type)
     # model_args.vocab_init_type
     # tokenizer.add_tokens(new_tokens)
