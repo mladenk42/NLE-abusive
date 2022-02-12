@@ -65,6 +65,21 @@ datasets = {
         'val_file': '../../data/unsup/24h/classify/cro_val.csv',
         'test_file': '../../data/unsup/24h/classify/cro_test.csv',
     },
+    'small25': {
+        'train_file': '../../data/unsup/24h/classify/cro_train25.csv',
+        'val_file': '../../data/unsup/24h/classify/cro_val.csv',
+        'test_file': '../../data/unsup/24h/classify/cro_test.csv',
+    },
+    'small50': {
+        'train_file': '../../data/unsup/24h/classify/cro_train50.csv',
+        'val_file': '../../data/unsup/24h/classify/cro_val.csv',
+        'test_file': '../../data/unsup/24h/classify/cro_test.csv',
+    },
+    'small75': {
+        'train_file': '../../data/unsup/24h/classify/cro_train75.csv',
+        'val_file': '../../data/unsup/24h/classify/cro_val.csv',
+        'test_file': '../../data/unsup/24h/classify/cro_test.csv',
+    },
 
 }
 
@@ -220,21 +235,9 @@ if __name__ == '__main__':
     train_file = datasets[dataset]['train_file']
     val_file = datasets[dataset]['val_file']
     test_file = datasets[dataset]['test_file']
-    # encode_data = args.encode_data
+    
     model_card= args.model_card
-    # all_steps = args.all_steps
-
-    #     model_dir = model_cards[model_card]
-    # model_dirs = []
-    #     if all_steps:
-    #         list_dir = os.listdir(model_dir)
-    #         for item in list_dir:
-    #             if 'checkpoint' in item:
-    #                 logging_steps = 50000 #TODO: maybe change letter. For now, a large Logging step
-    #                 tmp_dir = os.path.join(model_dir, item + '/')
-    #                 model_dirs.append(tmp_dir)
-    # model_dirs.append(model_card)
-
+    
     model = AutoModelForSequenceClassification.from_pretrained(model_card, num_labels=2)
 
     # print(model_dirs)
