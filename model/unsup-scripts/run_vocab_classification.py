@@ -1,11 +1,13 @@
 import subprocess
 from pathlib import Path
+import argparse
 
 per_device_train_batch_sizes = {"mbert": '24', "csebert": '40'}
 vocab_init_types = ["random", "avg", "sum", "max"]
 
 if __name__ == "__main__":
 
+    parser = argparse.ArgumentParser()
     # Model
     parser.add_argument("--berts", nargs="+", default=["mbert", "csebert"])
     args = parser.parse_args()
