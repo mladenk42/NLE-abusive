@@ -14,7 +14,7 @@ if __name__ == "__main__":
                         help='To Train on all steps check point')
     args = parser.parse_args()
     berts = args.berts
-    all_steps = agrs.all_steps
+    all_steps = args.all_steps
 
     # berts = ["mbert", "csebert"]
     # berts = ["csebert"]
