@@ -10,7 +10,7 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     # Model
     parser.add_argument("--berts", nargs="+", default=["mbert", "csebert"])
-     parser.add_argument("-all_steps", action='store_true',
+    parser.add_argument("-all_steps", action='store_true',
                         help='To Train on all steps check point')
     args = parser.parse_args()
     berts = args.berts
