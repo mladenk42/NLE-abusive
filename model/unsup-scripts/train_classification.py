@@ -111,7 +111,9 @@ if __name__ == '__main__':
     parser.add_argument("-save_steps", type=int, default=500, help='Number of updates steps before two checkpoint saves')
     parser.add_argument("-save_total_limit", type=int, default=500, help='If a value is passed, will limit the total amount of checkpoints. Deletes the older checkpoints')
     parser.add_argument("-save_strategy", type=str, default="steps", help='The checkpoint save strategy to adopt during training')
-
+    parser.add_argument("--learning_rate",
+                        default=2e-5,
+                        type=float)
 
     #Dataset
     parser.add_argument("-dataset", type=str, default='small', help='Training validation set large/small')
@@ -133,6 +135,7 @@ if __name__ == '__main__':
     num_train_epochs = args.num_train_epochs
     per_device_train_batch_size = args.per_device_train_batch_size
     per_device_eval_batch_size = args.per_device_eval_batch_size
+    learning_rate = args.learning_rate
     warmup_steps = args.warmup_steps
     weight_decay = args.weight_decay
     logging_steps = args.logging_steps
@@ -194,6 +197,7 @@ if __name__ == '__main__':
             num_train_epochs=num_train_epochs,  # total number of training epochs
             per_device_train_batch_size=per_device_train_batch_size,  # batch size per device during training
             per_device_eval_batch_size=per_device_eval_batch_size,  # batch size for evaluation
+            learning_rate = learning_rate
             warmup_steps=warmup_steps,  # number of warmup steps for learning rate scheduler
             weight_decay=weight_decay,  # strength of weight decay
             logging_steps=logging_steps,
