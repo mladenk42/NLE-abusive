@@ -197,7 +197,7 @@ if __name__ == '__main__':
             num_train_epochs=num_train_epochs,  # total number of training epochs
             per_device_train_batch_size=per_device_train_batch_size,  # batch size per device during training
             per_device_eval_batch_size=per_device_eval_batch_size,  # batch size for evaluation
-            learning_rate = learning_rate
+            learning_rate = learning_rate,
             warmup_steps=warmup_steps,  # number of warmup steps for learning rate scheduler
             weight_decay=weight_decay,  # strength of weight decay
             logging_steps=logging_steps,
