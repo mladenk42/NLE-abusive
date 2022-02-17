@@ -4,7 +4,7 @@ import os
 
 dir_name = '../results/classify/'
 all_dirs = [x[0] for x in os.walk(dir_name)]
-
+all_dirs.sort()
 result = pd.DataFrame()
 
 for model_dir in all_dirs:
