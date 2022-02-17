@@ -18,8 +18,11 @@ for model_dir in all_dirs:
         idx_f1 = df.val_f1.idxmax()
         test_f1_f1 = df.test_f1[idx_f1]  * 100
 
+        idx_best = df.test_f1.idxmax()
+        test_best_f1 = df.test_f1[idx_best]  * 100
+        
         model_card = model_dir.replace(dir_name, '')
-        data = {'model':model_card,'epoch_loss':idx_loss+1,'test_f1_loss':test_f1_loss,'epoch_f1':idx_f1+1,'test_f1_f1':test_f1_f1}
+        data = {'model':model_card,'epoch_loss':idx_loss+1,'test_f1_loss':test_f1_loss,'epoch_f1':idx_f1+1,'test_f1_f1':test_f1_f1,'epoch_best':idx_best+1,'test_best_f1':test_best_f1}
         result = result.append(data, ignore_index=True)
         # print(model_dir)
 print(result)
