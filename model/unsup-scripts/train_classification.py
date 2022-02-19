@@ -32,6 +32,8 @@ model_cards = {
 "mbert_vocab":'../output/mbert_vocab/', #TODO: Save the model
 "csebert_vocab":'../output/cse_finetune_vocab/',
 
+"csebert_vocab_avg":'../output/csebert_finetune_small_24h_vocab_avg/',
+
 }
 
 datasets = {
@@ -104,7 +106,7 @@ if __name__ == '__main__':
     parser.add_argument("-logging_dir", type=str, default="../logs/claasify/", help='Logging Directory')
     parser.add_argument("-num_train_epochs", type=int, default=5, help='Number of training Epochs')
     parser.add_argument("-per_device_train_batch_size", type=int, default=24, help='Traiing Batch Size')
-    parser.add_argument("-per_device_eval_batch_size", type=int, default=32, help='Evaluation Batch Size')
+    parser.add_argument("", type=int, default=32, help='Evaluation Batch Size')
     parser.add_argument("-warmup_steps", type=int, default=500, help='Warmup Steps')
     parser.add_argument("-weight_decay", type=int, default=0.01, help='Weight Decay Rate')
     parser.add_argument("-logging_steps", type=int, default=500, help='Logging Steps')
