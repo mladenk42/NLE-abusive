@@ -39,6 +39,8 @@ if __name__ == "__main__":
 
                         if all_steps:
                             checkpoints = ['/checkpoint-500','/checkpoint-1000','/checkpoint-1500']
+                        else:
+                            checkpoints=['']
                         
                         for checkpoint in checkpoints:
                             model_dir_str = bert + '_finetune_' + dataset_size + '_' + dataset_type + '_vocab' + '_' + vocab_init_type+checkpoint
