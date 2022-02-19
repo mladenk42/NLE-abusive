@@ -7,6 +7,8 @@ import math
 import os
 from tqdm.auto import tqdm
 
+import random
+
 from sklearn.metrics import f1_score, accuracy_score
 
 from torch.utils.data import DataLoader
@@ -152,6 +154,7 @@ if __name__ == '__main__':
                         help='If a value is passed, will limit the total amount of checkpoints. Deletes the older checkpoints')
     parser.add_argument("--save_strategy", type=str, default="steps",
                         help='The checkpoint save strategy to adopt during training')
+    
 
     parser.add_argument(
         "--max_train_steps",
@@ -162,7 +165,7 @@ if __name__ == '__main__':
     parser.add_argument(
         "--learning_rate",
         type=float,
-        default=5e-5,
+        default=2e-5,
         help="Initial learning rate (after the potential warmup period) to use.",
     )
     parser.add_argument(
@@ -192,6 +195,9 @@ if __name__ == '__main__':
         ),
     )
 
+    random.seed(42)
+    np.random.seed(42)
+    torch.manual_seed(42)
 
     # Dataset
     parser.add_argument("--dataset", type=str, default='small', help='Training validation set large/small')
