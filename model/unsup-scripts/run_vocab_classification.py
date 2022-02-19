@@ -3,7 +3,7 @@ from pathlib import Path
 import argparse
 
 per_device_train_batch_sizes = {"mbert": '24', "csebert": '40'}
-vocab_init_types = ["random", "avg", "sum", "max"]
+vocab_init_types = ["no","random", "avg", "sum", "max"]
 
 if __name__ == "__main__":
 
