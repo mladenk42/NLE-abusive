@@ -143,12 +143,13 @@ def bert_evaluate(model, eval_dataloader, device):
     data_iterator = tqdm(eval_dataloader, desc="Iteration")
     softmax = torch.nn.Softmax(dim=-1)
     for step, batch in enumerate(data_iterator):
-        input_ids, input_mask, labels = batch
+        input_ids, token_type_ids, input_masks, labels = batch
         input_ids = input_ids.to(device)
-        input_mask = input_mask.to(device)
+        input_masks = input_masks.to(device)
+        token_type_ids = token_type_ids.to(device)
 
         with torch.no_grad():
-            outputs = model(input_ids, token_type_ids=None, attention_mask=input_mask)
+            outputs = model(input_ids, token_type_ids=token_type_ids, attention_mask=input_masks)
 
         # loss is only output when labels are provided as input to the model ... real smooth
         logits = outputs[0]
