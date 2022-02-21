@@ -106,7 +106,7 @@ if __name__ == '__main__':
 
     data_iterator = tqdm(test_dataset, desc="Iteration")
     softmax = torch.nn.Softmax(dim=-1)
-    for step, batch in enumerate(train_dataloader):
+    for step, batch in enumerate(test_dataloader):
         
         with torch.no_grad():
             outputs = model(**batch)
