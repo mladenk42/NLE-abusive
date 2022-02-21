@@ -4,7 +4,7 @@ import argparse
 import logging
 import numpy as np
 import os
-import tqdm
+from tqdm import tqdm, trange
 
 from torch.utils.data import DataLoader
 from transformers import AutoConfig, AutoTokenizer, AutoModelForSequenceClassification, TrainingArguments,DataCollatorWithPadding
@@ -68,7 +68,7 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser()
 
     #Dataset
-    parser.add_argument("-test_file", type=str, default='../../data/unsup/24h/classify/test_2019_eq.csv', help='Test File')
+    parser.add_argument("-test_file", type=str, default='../../data/unsup/24h/classify/cro_test.csv', help='Test File')
     parser.add_argument("-encode_data", type=bool, default=False, help='Encode data')
 
     #Model
