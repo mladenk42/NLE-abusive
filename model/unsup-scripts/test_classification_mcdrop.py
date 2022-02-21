@@ -102,9 +102,7 @@ if __name__ == '__main__':
     # attention_masks = torch.tensor(attention_masks)
 
 
-    transformed_data = TensorDataset(input_ids, labels)
-    sampler = SequentialSampler(transformed_data)
-    dataloader = DataLoader(transformed_data, sampler=sampler, batch_size=batch_size)
+    test_dataloader = DataLoader(test_dataset, collate_fn=data_collator, batch_size=batch_size)
 
 
     model = AutoModelForSequenceClassification.from_pretrained(model_dir)
@@ -112,12 +110,11 @@ if __name__ == '__main__':
 
     data_iterator = tqdm(test_dataset, desc="Iteration")
     softmax = torch.nn.Softmax(dim=-1)
-    for step, batch in enumerate(data_iterator):
-        input_ids, labels = batch
-        input_ids = input_ids.to(device)
+    for step, batch in enumerate(train_dataloader):
         
         with torch.no_grad():
-            outputs = model(input_ids,labels=labels)
+            outputs = model(**batch)
+        loss = outputs.loss
 
         # loss is only output when labels are provided as input to the model ... real smooth
         logits = outputs[0]
