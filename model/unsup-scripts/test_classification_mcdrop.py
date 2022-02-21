@@ -119,7 +119,7 @@ if __name__ == '__main__':
 
     for step, batch in enumerate(data_iterator):
 
-        for i in range(0,2):        
+        for i in range(0,20):        
             with torch.no_grad():
                 outputs = model(**batch)
             loss = outputs.loss
@@ -159,6 +159,6 @@ if __name__ == '__main__':
     result.head()
     
     result.to_csv(out_file, index=False)
-    print('Output saved to ', loss_file_name)
+    print('Output saved to ', out_file)
 
 
