@@ -4,6 +4,7 @@ import argparse
 import logging
 import numpy as np
 import os
+import tqdm
 
 from torch.utils.data import DataLoader
 from transformers import AutoConfig, AutoTokenizer, AutoModelForSequenceClassification, TrainingArguments,DataCollatorWithPadding
