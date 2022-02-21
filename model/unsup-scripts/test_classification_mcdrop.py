@@ -95,7 +95,17 @@ if __name__ == '__main__':
     # TODO: Maybe want to save the dataset, so that processing is less
     test_texts, test_labels = read_data(test_file)
     test_encodings = tokenizer(test_texts, truncation=True, padding=True)
-    test_dataset = HRDataset(test_encodings, test_labels)
+    # test_dataset = HRDataset(test_encodings, test_labels)
+
+    input_ids = torch.tensor(test_encodings)
+    labels = torch.tensor(test_labels)
+    # attention_masks = torch.tensor(attention_masks)
+
+
+    transformed_data = TensorDataset(input_ids, labels)
+    sampler = SequentialSampler(transformed_data)
+    dataloader = DataLoader(transformed_data, sampler=sampler, batch_size=batch_size)
+
 
     model = AutoModelForSequenceClassification.from_pretrained(model_dir)
     model.train()
@@ -107,7 +117,7 @@ if __name__ == '__main__':
         input_ids = input_ids.to(device)
         
         with torch.no_grad():
-            outputs = model(input_ids)
+            outputs = model(input_ids,labels=labels)
 
         # loss is only output when labels are provided as input to the model ... real smooth
         logits = outputs[0]
