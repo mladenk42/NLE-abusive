@@ -6,7 +6,7 @@ import numpy as np
 import os
 from tqdm import tqdm, trange
 
-from torch.utils.data import DataLoader
+from torch.utils.data import DataLoader, SequentialSampler
 from transformers import AutoConfig, AutoTokenizer, AutoModelForSequenceClassification, TrainingArguments,DataCollatorWithPadding
 from transformers import Trainer
 logger = logging.getLogger(__name__)
@@ -97,8 +97,10 @@ if __name__ == '__main__':
     test_encodings = tokenizer(test_texts, truncation=True, padding=True)
     test_dataset = HRDataset(test_encodings, test_labels)
 
+    sampler = SequentialSampler(test_dataset)
+
     batch_size = 8
-    test_dataloader = DataLoader(test_dataset, collate_fn=data_collator, batch_size=batch_size)
+    test_dataloader = DataLoader(test_dataset, collate_fn=data_collator, batch_size=batch_size, sampler=sampler)
 
 
     model = AutoModelForSequenceClassification.from_pretrained(model_dir)
