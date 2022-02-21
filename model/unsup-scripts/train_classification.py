@@ -14,6 +14,9 @@ logger = logging.getLogger(__name__)
 from datasets import load_metric
 from datasets import load_from_disk
 
+import wandb
+wandb.init(project="train-classification", entity="hahackathon")
+
 model_cards = {
 "mbert":'bert-base-multilingual-cased',
 "csebert":'EMBEDDIA/crosloengual-bert',
@@ -207,9 +210,12 @@ if __name__ == '__main__':
             save_total_limit = save_total_limit,
             save_strategy=save_strategy,
             save_steps=save_steps,
+            report_to="wandb", #Log into Weight and Bias
+            evaluation_strategy="steps" #Evaluate at very logging steps
+
         )
 
-        model = AutoModelForSequenceClassification.from_pretrained(model_dir, num_labels=2)
+        model = AutoModelForSequenceClassification.from_pretrained(model_dir, num_labels=2, classifier_dropout=0.1)
 
         #TODO: Trainer not working on Server due to some issue
         trainer = Trainer(
