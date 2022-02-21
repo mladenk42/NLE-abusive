@@ -112,14 +112,17 @@ if __name__ == '__main__':
     all_mean1 = []
     all_std1 = []
 
+    device = torch.cuda.current_device()
 
     for step, batch in enumerate(data_iterator):
 
+        batch = batch.to(device)
         for i in range(0,20): 
 
             #Load model multiple time, maybe this is not required
             model = AutoModelForSequenceClassification.from_pretrained(model_dir)
             model.train()
+            model.to(device)
 
             with torch.no_grad():
                 outputs = model(**batch)
