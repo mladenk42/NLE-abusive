@@ -96,7 +96,7 @@ if __name__ == '__main__':
     test_encodings = tokenizer(test_texts, truncation=True, padding=True)
     test_dataset = HRDataset(test_encodings, test_labels)
 
-    model = AutoModelForSequenceClassification.from_pretrained(tmp_model_dir)
+    model = AutoModelForSequenceClassification.from_pretrained(model_dir)
     model.train()
 
     data_iterator = tqdm(test_dataset, desc="Iteration")
