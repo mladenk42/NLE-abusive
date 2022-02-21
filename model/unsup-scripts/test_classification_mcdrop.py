@@ -129,8 +129,8 @@ if __name__ == '__main__':
                 all_probs0 = probs[:,0]
                 all_probs1 = probs[:,1]
             else:
-                all_probs0 = torch.stack([all_probs0, probs0])
-                all_probs1 = torch.stack([all_probs1, probs1])
+                all_probs0 = torch.stack([all_probs0, probs[:,0]])
+                all_probs1 = torch.stack([all_probs1, probs[:,1]])
             
 
         mean0 = torch.mean(all_probs0,0).to('cpu').numpy()
