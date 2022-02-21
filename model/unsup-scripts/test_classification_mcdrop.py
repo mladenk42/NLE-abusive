@@ -70,6 +70,7 @@ if __name__ == '__main__':
     #Dataset
     parser.add_argument("-test_file", type=str, default='../../data/unsup/24h/classify/cro_test.csv', help='Test File')
     parser.add_argument("-encode_data", type=bool, default=False, help='Encode data')
+    parser.add_argument("-batch_size", type=int, default=64, help='batch size')
 
     #Model
     parser.add_argument("-model_dir", type=str, default='./results/claasify/mbert/', help='The model directory checkpoint for weights initialization.')
@@ -86,6 +87,7 @@ if __name__ == '__main__':
 
     test_file = args.test_file
     model_dir= args.model_dir
+    batch_size = args.batch_size
     out_file = model_dir + args.out_file
 
     #Only done once because it assumes main directory will have same pre-processing part
@@ -99,7 +101,7 @@ if __name__ == '__main__':
 
     sampler = SequentialSampler(test_dataset)
 
-    batch_size = 8
+    
     test_dataloader = DataLoader(test_dataset, collate_fn=data_collator, batch_size=batch_size, sampler=sampler)
 
     data_iterator = tqdm(test_dataloader, desc="Iteration")
