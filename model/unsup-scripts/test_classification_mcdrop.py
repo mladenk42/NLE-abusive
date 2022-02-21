@@ -126,8 +126,8 @@ if __name__ == '__main__':
             probs = softmax(logits)
 
             if i == 0:
-                all_probs0 = probs[:,0]
-                all_probs1 = probs[:,1]
+                all_probs0 = probs[:,0].unsqueeze(0)
+                all_probs1 = probs[:,1].unsqueeze(0)
             else:
                 probs0 = probs[:,0].unsqueeze(0)
                 probs1 = probs[:,1].unsqueeze(0)
