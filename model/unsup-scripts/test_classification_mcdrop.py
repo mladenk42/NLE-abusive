@@ -104,7 +104,7 @@ if __name__ == '__main__':
     model = AutoModelForSequenceClassification.from_pretrained(model_dir)
     model.train()
 
-    data_iterator = tqdm(test_dataset, desc="Iteration")
+    data_iterator = tqdm(test_dataloader, desc="Iteration")
     softmax = torch.nn.Softmax(dim=-1)
 
     
@@ -115,9 +115,9 @@ if __name__ == '__main__':
     all_std1 = []
 
 
-    for step, batch in enumerate(test_dataloader):
+    for step, batch in enumerate(data_iterator):
 
-        for i in range(0,10):        
+        for i in range(0,2):        
             with torch.no_grad():
                 outputs = model(**batch)
             loss = outputs.loss
