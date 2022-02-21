@@ -97,7 +97,7 @@ if __name__ == '__main__':
     test_encodings = tokenizer(test_texts, truncation=True, padding=True)
     test_dataset = HRDataset(test_encodings, test_labels)
 
-    
+    batch_size = 8
     test_dataloader = DataLoader(test_dataset, collate_fn=data_collator, batch_size=batch_size)
 
 
