@@ -106,24 +106,46 @@ if __name__ == '__main__':
 
     data_iterator = tqdm(test_dataset, desc="Iteration")
     softmax = torch.nn.Softmax(dim=-1)
+
+    
+    true_labels = []
+    all_mean0 = []
+    all_std0  = []
+    all_mean1 = []
+    all_std1 = []
+
+
     for step, batch in enumerate(test_dataloader):
-        
-        with torch.no_grad():
-            outputs = model(**batch)
-        loss = outputs.loss
 
-        # loss is only output when labels are provided as input to the model ... real smooth
-        logits = outputs[0]
-        probs = softmax(logits)
-        # print(type(logits))
-        logits = logits.to('cpu').numpy()
-        label_ids = labels.to('cpu').numpy()
+        for i in range(0,10):        
+            with torch.no_grad():
+                outputs = model(**batch)
+            loss = outputs.loss
 
-        for label,l, prob in zip(label_ids,logits, probs):
+            logits = outputs.logits 
+            probs = softmax(logits)
+
+            if i == 0:
+                all_probs0 = probs[:,0]
+                all_probs1 = probs[:,1]
+            else:
+                all_probs0 = torch.stack([all_probs0, probs0])
+                all_probs1 = torch.stack([all_probs1, probs1])
+            
+
+        mean0 = torch.mean(all_probs0,0).to('cpu').numpy()
+        std0 = torch.std(all_probs0,0).to('cpu').numpy()
+
+        mean1 = torch.mean(all_probs1,0).to('cpu').numpy()
+        std1 = torch.std(all_probs1,0).to('cpu').numpy()
+
+        labels = batch['labels'].to('cpu').numpy()
+        for label,m0,s0,m1,s1  in zip(labels,mean0, std0, mean1, std1):
             true_labels.append(label)
-            predictions.append(np.argmax(l))
-            prob_0.append(prob[0].to('cpu').numpy())
-            prob_1.append(prob[1].to('cpu').numpy())
+            all_mean0.append(m0)
+            all_mean1.append(m1)
+            all_std0.append(s0)
+            all_std1.append(s1)
 
 
 
