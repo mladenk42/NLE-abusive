@@ -206,7 +206,7 @@ if __name__ == '__main__':
             warmup_steps=warmup_steps,  # number of warmup steps for learning rate scheduler
             weight_decay=weight_decay,  # strength of weight decay
             logging_steps=logging_steps,
-            evaluation_strategy="epoch",
+            
             save_total_limit = save_total_limit,
             save_strategy=save_strategy,
             save_steps=save_steps,
