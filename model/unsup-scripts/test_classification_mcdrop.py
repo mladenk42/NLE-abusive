@@ -95,13 +95,9 @@ if __name__ == '__main__':
     # TODO: Maybe want to save the dataset, so that processing is less
     test_texts, test_labels = read_data(test_file)
     test_encodings = tokenizer(test_texts, truncation=True, padding=True)
-    # test_dataset = HRDataset(test_encodings, test_labels)
+    test_dataset = HRDataset(test_encodings, test_labels)
 
-    input_ids = torch.tensor(test_encodings)
-    labels = torch.tensor(test_labels)
-    # attention_masks = torch.tensor(attention_masks)
-
-
+    
     test_dataloader = DataLoader(test_dataset, collate_fn=data_collator, batch_size=batch_size)
 
 
