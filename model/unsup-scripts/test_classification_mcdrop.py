@@ -74,7 +74,7 @@ if __name__ == '__main__':
     #Model
     parser.add_argument("-model_dir", type=str, default='./results/claasify/mbert/', help='The model directory checkpoint for weights initialization.')
    
-    parser.add_argument("-out_file", type=str, default='test_all_metrics.csv',
+    parser.add_argument("-out_file", type=str, default='all_probs.csv',
                         help='output Metric File without full path')
 
     #TODO: Currently expects tokenizer to be present in the model directory only. Better Change this in future
@@ -152,49 +152,13 @@ if __name__ == '__main__':
             all_std1.append(s1)
 
 
-
+     # Save All Loss for the Best Model
+    result = pd.DataFrame([true_labels, all_mean0, all_std0, all_mean1, all_std0 ])
+    result = result.transpose()
+    result.columns = ['labels', 'prob_mean0', 'prob_std0', 'prob_mean1', 'prob_std1']
+    result.head()
     
-    df = pd.DataFrame(all_results, columns=columns_keys)
-
-    df.to_csv(out_file, index=False)
-
-    print('output saved to ', out_file)
-
-
-def bert_evaluate(model, eval_dataloader, device):
-    """Evaluation of trained checkpoint."""
-    model.to(device)
-    model.eval()
-    predictions = []
-    prob_0 = []
-    prob_1 = []
-    true_labels = []
-    data_iterator = tqdm(eval_dataloader, desc="Iteration")
-    softmax = torch.nn.Softmax(dim=-1)
-    for step, batch in enumerate(data_iterator):
-        input_ids, token_type_ids, input_masks, labels = batch
-        input_ids = input_ids.to(device)
-        input_masks = input_masks.to(device)
-        token_type_ids = token_type_ids.to(device)
-
-        with torch.no_grad():
-            outputs = model(input_ids, token_type_ids=token_type_ids, attention_mask=input_masks)
-
-        # loss is only output when labels are provided as input to the model ... real smooth
-        logits = outputs[0]
-        probs = softmax(logits)
-        # print(type(logits))
-        logits = logits.to('cpu').numpy()
-        label_ids = labels.to('cpu').numpy()
-
-        for label,l, prob in zip(label_ids,logits, probs):
-            true_labels.append(label)
-            predictions.append(np.argmax(l))
-            prob_0.append(prob[0].to('cpu').numpy())
-            prob_1.append(prob[1].to('cpu').numpy())
-    metrics = get_metrics(true_labels, predictions)
-    return metrics, predictions, prob_0, prob_1
-
-
+    result.to_csv(out_file, index=False)
+    print('Output saved to ', loss_file_name)
 
 
