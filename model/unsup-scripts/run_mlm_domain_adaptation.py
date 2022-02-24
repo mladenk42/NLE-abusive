@@ -66,8 +66,7 @@ MODEL_CONFIG_CLASSES = list(MODEL_FOR_MASKED_LM_MAPPING.keys())
 MODEL_TYPES = tuple(conf.model_type for conf in MODEL_CONFIG_CLASSES)
 
 
-import wandb
-wandb.init(project="train-LLM", entity="hahackathon")
+
 
 def new_word_embedding(new_tokens,tokenizer,model,method='random'):
     #Add word one by one. This assumes that 'new_tokens' is not coverred in the vocabulary
@@ -246,7 +245,7 @@ def main():
     # or by passing the --help flag to this script.
     # We now keep distinct sets of args, for a cleaner separation of concerns.
 
-    parser = HfArgumentParser((ModelArguments, DataTrainingArguments, TrainingArguments(report_to="wandb",evaluation_strategy="steps")))
+    parser = HfArgumentParser((ModelArguments, DataTrainingArguments, TrainingArguments()))
     if len(sys.argv) == 2 and sys.argv[1].endswith(".json"):
         # If we pass only one argument to the script and it's the path to a json file,
         # let's parse it to get our arguments.

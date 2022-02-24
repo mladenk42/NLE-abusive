@@ -20,6 +20,10 @@ per_device_train_batch_sizes= {"mbert":'24', "csebert":'40'}
 # vocab_init_types=["no","random","avg","sum","max"]
 vocab_init_types=["no"]
 
+
+import wandb
+wandb.init(project="train-LLM", entity="hahackathon")
+
 if __name__ == "__main__":
 
     berts = ["mbert","csebert"]
@@ -63,7 +67,9 @@ if __name__ == "__main__":
                                 "--max_seq_length",max_seq_length,
                                 "--num_train_epochs",num_train_epochs,
                                 "--validation_split_percentage",validation_split_percentage,
-                                "--vocab_init_type",vocab_init_type
+                                "--vocab_init_type",vocab_init_type,
+                                "--report_to","wandb",
+                                "--evaluation_strategy","steps"
                                 ]
 
                     print(list_arg)
