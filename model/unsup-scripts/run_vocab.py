@@ -25,6 +25,13 @@ import wandb
 wandb.init(project="train-LLM", entity="hahackathon")
 
 if __name__ == "__main__":
+    parser = argparse.ArgumentParser()
+    # Training Parameters
+    parser.add_argument("--base_output_dir", type=str, default="/import/cogsci/ravi/codes/NLE-abusive/model/output/", help='Output Directory')
+
+    args = parser.parse_args()
+
+    base_output_dir = args.base_output_dir
 
     berts = ["mbert","csebert"]
     dataset_sizes =["small","large"]
@@ -49,7 +56,7 @@ if __name__ == "__main__":
 
 
                 for vocab_init_type in vocab_init_types:
-                    output_dir = '/import/cogsci/ravi/codes/NLE-abusive/model/output/' + bert + '_finetune_' + dataset_size + '_' + dataset_type +'_vocab'+'_'+vocab_init_type
+                    output_dir = base_output_dir + bert + '_finetune_' + dataset_size + '_' + dataset_type +'_vocab'+'_'+vocab_init_type
 
                     list_arg = [
                                 python_path, "run_mlm_domain_adaptation.py",
