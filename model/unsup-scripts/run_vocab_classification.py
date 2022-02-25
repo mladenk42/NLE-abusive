@@ -10,11 +10,13 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     # Model
     parser.add_argument("--berts", nargs="+", default=["mbert", "csebert"])
+    parser.add_argument("--datasets", nargs="+", default=['small','small25','small50','small75'])
     parser.add_argument("-all_steps", action='store_true',
                         help='To Train on all steps check point')
     args = parser.parse_args()
     berts = args.berts
     all_steps = args.all_steps
+    datasets = args.datasets
 
     # berts = ["mbert", "csebert"]
     # berts = ["csebert"]
@@ -24,7 +26,7 @@ if __name__ == "__main__":
     dataset_types_LM = ["gen", "24h"]
     dataset_sizes_LM = ["small"]
 
-    datasets = ['small','small25','small50','small75']
+    # datasets = ['small','small25','small50','small75']
 
     python_path = "/homes/ravi/anaconda3/bin/python"
     cache_dir = "./cache"
