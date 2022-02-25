@@ -32,6 +32,7 @@ from transformers import (
 
 logger = logging.getLogger(__name__)
 
+
 # import datasets
 from datasets import load_metric
 from datasets import load_from_disk
@@ -142,7 +143,7 @@ if __name__ == '__main__':
     # Training Parameters
     parser.add_argument("--output_dir", type=str, default="../results/classify/xxx", help='Output Directory')
     parser.add_argument("--logging_dir", type=str, default="../logs/classify/xxx", help='Logging Directory')
-    parser.add_argument("--num_train_epochs", type=int, default=10, help='Number of training Epochs')
+    parser.add_argument("--num_train_epochs", type=int, default=5, help='Number of training Epochs')
     parser.add_argument("--per_device_train_batch_size", type=int, default=64, help='Training Batch Size')
     parser.add_argument("--per_device_eval_batch_size", type=int, default=64, help='Evaluation Batch Size')
     parser.add_argument("--warmup_steps", type=int, default=500, help='Warmup Steps')
