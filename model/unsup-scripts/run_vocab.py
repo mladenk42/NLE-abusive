@@ -45,6 +45,7 @@ if __name__ == "__main__":
     max_seq_length = '256'
     num_train_epochs = '5'
     validation_split_percentage = '10'
+    logging_steps = "500"
 
     for bert in berts:
         model_card = model_cards[bert]
@@ -77,6 +78,7 @@ if __name__ == "__main__":
                                 "--vocab_init_type",vocab_init_type,
                                 "--report_to","wandb",
                                 "--evaluation_strategy","steps"
+                                "--logging_steps", logging_steps
                                 ]
 
                     print(list_arg)

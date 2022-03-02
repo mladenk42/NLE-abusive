@@ -13,10 +13,13 @@ if __name__ == "__main__":
     parser.add_argument("--datasets", nargs="+", default=['small','small25','small50','small75','large'])
     parser.add_argument("-all_steps", action='store_true',
                         help='To Train on all steps check point')
+    parser.add_argument("-rule", action='store_true',
+                        help='To Train on all steps check point')
     args = parser.parse_args()
     berts = args.berts
     all_steps = args.all_steps
     datasets = args.datasets
+    rule = args.rule
 
     # berts = ["mbert", "csebert"]
     # berts = ["csebert"]
@@ -48,8 +51,13 @@ if __name__ == "__main__":
                             model_dir_str = bert + '_finetune_' + dataset_size + '_' + dataset_type + '_vocab' + '_' + vocab_init_type+checkpoint
                             model_card = '../output/' + model_dir_str
 
-                            output_dir = '../results/classify/' + model_dir_str +'_'+dataset
-                            logging_dir = '../logs/classify/' + model_dir_str+'_'+dataset
+                            if rule:
+                                output_dir = '../results/classify/rule/' + model_dir_str +'_'+dataset
+                                logging_dir = '../logs/classify/rule/' + model_dir_str+'_'+dataset
+                                rule_opt='rule'
+                            else:
+                                output_dir = '../results/classify/' + model_dir_str +'_'+dataset
+                                logging_dir = '../logs/classify/' + model_dir_str+'_'+dataset
 
                             # Recursively create Directory, even if it exits
                             Path(output_dir).mkdir(parents=True, exist_ok=True)
@@ -59,7 +67,8 @@ if __name__ == "__main__":
                                 "--output_dir", output_dir,
                                 "--logging_dir", logging_dir,
                                 "--model_card", model_card,
-                                "--dataset", dataset
+                                "--dataset", dataset,
+                                "--rule",rule_opt
 
                             ]
 

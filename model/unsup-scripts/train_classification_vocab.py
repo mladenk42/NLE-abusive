@@ -110,14 +110,17 @@ def fix_metrics(metrics):
     return metrics
 
 
-def read_data(file_name):
+def read_data(file_name,rule=False):
     # Reading CSV File
 
     df = pd.read_csv(file_name, lineterminator='\n')
     # df = df.head(100)
     print('Processing', file_name, df.shape)
     texts = df.content.tolist()
-    labels = df.label.tolist()
+    if rule:
+        labels = df.infringed_on_rule.tolist()
+    else:
+        labels = df.label.tolist()
 
     return texts, labels
 
@@ -202,6 +205,7 @@ if __name__ == '__main__':
 
     # Dataset
     parser.add_argument("--dataset", type=str, default='small', help='Training validation set large/small')
+    parser.add_argument("--rule", type=str, default='0', help='Rule')
 
     # Model
     parser.add_argument("--model_card", type=str, default='bert-base-multilingual-cased', help='The model directory checkpoint for weights initialization.')
@@ -236,6 +240,16 @@ if __name__ == '__main__':
     num_warmup_steps = args.num_warmup_steps
     max_length = args.max_length
 
+    #TODO: Find a Better way for the variable 
+    rule = args.rule
+
+    if rule != '0':
+        rule = True
+        num_labels = 9
+    else:
+        rule = False
+        num_labels = 2
+
 
 
     dataset = args.dataset
@@ -245,7 +259,7 @@ if __name__ == '__main__':
     
     model_card= args.model_card
     
-    model = AutoModelForSequenceClassification.from_pretrained(model_card, num_labels=2)
+    model = AutoModelForSequenceClassification.from_pretrained(model_card, num_labels=num_labels)
 
     # print(model_dirs)
 
@@ -253,14 +267,14 @@ if __name__ == '__main__':
     data_collator = DataCollatorWithPadding(tokenizer=tokenizer)
 
     # TODO: Maybe want to save the dataset, so that processing is less
-    train_texts, train_labels = read_data(train_file)
+    train_texts, train_labels = read_data(train_file,rule=rule)
     train_encodings = tokenizer(train_texts, truncation=True, padding=True, max_length=max_length)
     train_dataset = HRDataset(train_encodings, train_labels)
-    val_texts, val_labels = read_data(val_file)
+    val_texts, val_labels = read_data(val_file,rule=rule)
     val_encodings = tokenizer(val_texts, truncation=True, padding=True, max_length=max_length)
     val_dataset = HRDataset(val_encodings, val_labels)
 
-    test_texts, test_labels = read_data(test_file)
+    test_texts, test_labels = read_data(test_file,rule=rule)
     test_encodings = tokenizer(test_texts, truncation=True, padding=True, max_length=max_length)
     test_dataset = HRDataset(test_encodings, test_labels)
 
