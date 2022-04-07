@@ -16,7 +16,7 @@ data = {"small": {"gen": "/homes/ravi/cro_corpus/LM_general_small.txt",
 model_cards ={"mbert":"bert-base-multilingual-cased",
        "csebert":"EMBEDDIA/crosloengual-bert",
        }
-per_device_train_batch_sizes= {"mbert":'12', "csebert":'20'}
+per_device_train_batch_sizes= {"mbert":'12', "csebert":'16'}
 # vocab_init_types=["no","random","avg","sum","max"]
 vocab_init_types=["no"]
 
@@ -45,8 +45,8 @@ if __name__ == "__main__":
     max_seq_length = '256'
     num_train_epochs = '3'
     validation_split_percentage = '10'
-    logging_steps = "250"
-    save_steps = "500"
+    logging_steps = "2"
+    save_steps = "5"
 
     for bert in berts:
         model_card = model_cards[bert]
