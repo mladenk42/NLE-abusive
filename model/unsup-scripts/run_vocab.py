@@ -78,7 +78,7 @@ if __name__ == "__main__":
                                 "--validation_split_percentage",validation_split_percentage,
                                 "--vocab_init_type",vocab_init_type,
                                 "--report_to","wandb",
-                                "--evaluation_strategy","steps"
+                                "--evaluation_strategy","steps",
                                 "--logging_steps", logging_steps,
                                  "--save_steps", save_steps
                                 ]
