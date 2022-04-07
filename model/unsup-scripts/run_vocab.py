@@ -41,7 +41,7 @@ if __name__ == "__main__":
     python_path = "/homes/ravi/anaconda3/bin/python"
     cache_dir = "./cache"
     gradient_accumulation_steps = '8'
-    per_device_eval_batch_size = '8'
+    per_device_eval_batch_size = '24'
     max_seq_length = '256'
     num_train_epochs = '3'
     validation_split_percentage = '10'
