@@ -33,7 +33,7 @@ if __name__ == "__main__":
 
     base_output_dir = args.base_output_dir
 
-    berts = ["mbert","csebert"]
+    berts = ["csebert","mbert"]
     dataset_sizes =["small","large"]
     dataset_types = ["gen","24h"]
     dataset_sizes = ["small"]
