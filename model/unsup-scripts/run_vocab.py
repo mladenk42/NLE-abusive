@@ -45,8 +45,8 @@ if __name__ == "__main__":
     max_seq_length = '256'
     num_train_epochs = '3'
     validation_split_percentage = '10'
-    logging_steps = "2"
-    save_steps = "5"
+    logging_steps = "250"
+    save_steps = "500"
 
     for bert in berts:
         model_card = model_cards[bert]
