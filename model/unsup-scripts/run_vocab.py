@@ -5,8 +5,8 @@ import sys
 
 import subprocess
 
-data = {"small": {"gen": "/scratch-local/ravi/datasets/cro_corpus/use/small/LM_general_small.txt",
-                  "24h":"/scratch-local/ravi/datasets/cro_corpus/use/small/LM_24h_small.txt"
+data = {"small": {"gen": "/homes/ravi/cro_corpus/LM_general_small.txt",
+                  "24h":"/homes/ravi/cro_corpus/LM_24h_small.txt"
                   },
         "large": {
 
@@ -43,7 +43,7 @@ if __name__ == "__main__":
     gradient_accumulation_steps = '64'
     per_device_eval_batch_size = '18'
     max_seq_length = '256'
-    num_train_epochs = '5'
+    num_train_epochs = '3'
     validation_split_percentage = '10'
     logging_steps = "500"
 
