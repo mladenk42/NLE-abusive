@@ -16,7 +16,7 @@ data = {"small": {"gen": "/homes/ravi/cro_corpus/LM_general_small.txt",
 model_cards ={"mbert":"bert-base-multilingual-cased",
        "csebert":"EMBEDDIA/crosloengual-bert",
        }
-per_device_train_batch_sizes= {"mbert":'20', "csebert":'40'}
+per_device_train_batch_sizes= {"mbert":'16', "csebert":'20'}
 # vocab_init_types=["no","random","avg","sum","max"]
 vocab_init_types=["no"]
 
@@ -41,7 +41,7 @@ if __name__ == "__main__":
     python_path = "/homes/ravi/anaconda3/bin/python"
     cache_dir = "./cache"
     gradient_accumulation_steps = '16'
-    per_device_eval_batch_size = '16'
+    per_device_eval_batch_size = '8'
     max_seq_length = '256'
     num_train_epochs = '3'
     validation_split_percentage = '10'
