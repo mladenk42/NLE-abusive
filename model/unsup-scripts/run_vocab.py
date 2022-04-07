@@ -16,7 +16,7 @@ data = {"small": {"gen": "/homes/ravi/cro_corpus/LM_general_small.txt",
 model_cards ={"mbert":"bert-base-multilingual-cased",
        "csebert":"EMBEDDIA/crosloengual-bert",
        }
-per_device_train_batch_sizes= {"mbert":'16', "csebert":'40'}
+per_device_train_batch_sizes= {"mbert":'20', "csebert":'40'}
 # vocab_init_types=["no","random","avg","sum","max"]
 vocab_init_types=["no"]
 
