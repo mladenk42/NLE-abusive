@@ -70,7 +70,7 @@ if __name__ == "__main__":
                                 "--gradient_accumulation_steps",gradient_accumulation_steps,
                                 "--per_device_train_batch_size", per_device_train_batch_size,
                                 "--per_device_eval_batch_size", per_device_eval_batch_size,
-                                "--fp16",
+                                # "--fp16",
                                 "--overwrite_output_dir",
                                 "--line_by_line",
                                 "--max_seq_length",max_seq_length,
