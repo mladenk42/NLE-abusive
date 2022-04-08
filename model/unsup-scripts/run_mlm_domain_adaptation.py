@@ -574,6 +574,7 @@ def main():
 
     # Training
     if training_args.do_train:
+        print(training_args)
         checkpoint = None
         if training_args.resume_from_checkpoint is not None:
             checkpoint = training_args.resume_from_checkpoint
